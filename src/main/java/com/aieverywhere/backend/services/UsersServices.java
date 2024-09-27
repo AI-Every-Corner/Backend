@@ -1,42 +1,62 @@
 package com.aieverywhere.backend.services;
 
-import java.util.Date;
-import java.util.List;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.aieverywhere.backend.models.UsersModel;
-import com.aieverywhere.backend.repostories.UsersRepostory;
+import com.aieverywhere.backend.models.Users;
+import com.aieverywhere.backend.repostories.UserRepo;
 
 @Service
-public class UsersServices {
+public class UsersServices implements UserDetailsService {
+	private final UserRepo userRepo;
 
 	@Autowired
-	private UsersRepostory usersRepostory;
-	
-	public UsersModel findAllByID(String userID){
-		return null;
+	public UsersServices(UserRepo userRepo) {
+		this.userRepo = userRepo;
+
 	}
-	public UsersModel findAllByEmailOrPhone(String email, String phone){
-		return null;
+
+	public Users CreateUsers(Users user) {
+		return userRepo.save(user);
+		
 	}
-	public List<UsersModel> findAllByName(String name){
-		return null;
+
+	public String login(String username, String password) {
+		Users user = userRepo.findByUsername(username);
+		if(user == null) {
+			return "cant found user";
+		}
+		if(user.getPassword().equals(password)) {
+			return "login success";
+		}
+		return "wrong password";
 	}
-	public List<UsersModel> findAllByRole(String role){
-		return null;
+
+	public String updateUser(Users user) {
+		
+		return "the result of update";
+
 	}
-	public List<UsersModel> findByPersonality(String personality){
-		return null;
+
+	public String deleteUser(int userId) {
+		return "the result of update";
 	}
-	public List<UsersModel> findByEmo_level(int emoLevel){
-		return null;
+
+	// this is use for spring security
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Users user = userRepo.findByUsername(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("User not found");
+		}
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+				Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
 	}
-	public List<UsersModel> findByCreated_atBetween(Date start, Date end){
-		return null;
-	}
-	public List<UsersModel> findByUpdate_atBetween(Date start, Date end){
-		return null;
-	}
+
 }
