@@ -1,0 +1,97 @@
+package com.aieverywhere.backend.models;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "responses")
+public class Responses {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long responseId;
+	private Long postId;
+	private Long userId;
+	private String content;
+	private Long supRepId;
+	// this is a column to know which respond this respond respond to.
+	private LocalDateTime createdAt;
+	private LocalDateTime updateAt;
+
+	public Responses() {
+
+	}
+
+	public Responses(Long responseId, Long postId, Long userId, String content, Long supRepId, LocalDateTime createdAt,
+			LocalDateTime updateAt) {
+		this.responseId = responseId;
+		this.postId = postId;
+		this.userId = userId;
+		this.content = content;
+		this.supRepId = supRepId;
+		this.createdAt = createdAt;
+		this.updateAt = updateAt;
+	}
+
+	public Long getResponseId() {
+		return responseId;
+	}
+
+	public void setResponseId(Long responseId) {
+		this.responseId = responseId;
+	}
+
+	public Long getPostId() {
+		return postId;
+	}
+
+	public void setPostId(Long postId) {
+		this.postId = postId;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Long getSupRepId() {
+		return supRepId;
+	}
+
+	public void setSupRepId(Long supRepId) {
+		this.supRepId = supRepId;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdateAt() {
+		return updateAt;
+	}
+
+	public void setUpdateAt(LocalDateTime updateAt) {
+		this.updateAt = updateAt;
+	}
+
+}
