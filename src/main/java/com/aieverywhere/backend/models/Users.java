@@ -2,6 +2,7 @@ package com.aieverywhere.backend.models;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,47 +17,67 @@ public class Users {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int userId;
-	
+	private Long userId;
+
 	private String username;
-	
+
 	private String password;
-	
+
 	@Enumerated(EnumType.STRING)
 	private Role role;
-		
+
+	private String nickName;
+
 	private LocalDateTime birth;
-	
-	private int age;
-	
+
+	private Long age;
+
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
-	
+
 	private String email;
-	
+
 	private String phoneNum;
-	
+	@Column(nullable = true)
 	private String imagePath;
-	
+	@Column(nullable = true)
 	private String personality;
-	
-	private int emoLevel;
-	
+
+	private Long emoLevel;
+
 	private LocalDateTime createdAt;
-	
+
 	private LocalDateTime updateAt;
-	
+
 	public Users() {
-		
+
 	}
-	
-	public Users(int userId, String username, String password, Role role, LocalDateTime birth, int age,
-			Gender gender, String email, String phoneNum, String imagePath, String personality, int emoLevel,
-			LocalDateTime createdAt, LocalDateTime updateAt) {
+
+	public Users(Users argUser) {
+		this.username = argUser.getUsername();
+		this.password = argUser.getPassword();
+		this.role = Role.User;
+		this.nickName = argUser.getNickName();
+		this.birth = argUser.getBirth();
+		this.age = argUser.getAge();
+		this.gender = argUser.getGender();
+		this.email = argUser.getEmail();
+		this.phoneNum = argUser.getPhoneNum();
+		this.imagePath = argUser.getImagePath();
+		this.personality = argUser.getPersonality();
+		this.emoLevel = argUser.getEmoLevel();
+		this.createdAt = argUser.getCreatedAt();
+		this.updateAt = argUser.getUpdateAt();
+	}
+
+	public Users(Long userId, String username, String password, Role role, String nickName,LocalDateTime birth, Long age, Gender gender,
+			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
+			LocalDateTime updateAt) {
 		this.userId = userId;
 		this.username = username;
 		this.password = password;
 		this.role = Role.User;
+		this.nickName = nickName;
 		this.birth = birth;
 		this.age = age;
 		this.gender = gender;
@@ -68,14 +89,12 @@ public class Users {
 		this.createdAt = createdAt;
 		this.updateAt = updateAt;
 	}
-	
-	
 
-	public int getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
@@ -103,7 +122,13 @@ public class Users {
 		this.role = role;
 	}
 
-	
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
 
 	public LocalDateTime getBirth() {
 		return birth;
@@ -113,11 +138,11 @@ public class Users {
 		this.birth = birth;
 	}
 
-	public int getAge() {
+	public Long getAge() {
 		return age;
 	}
 
-	public void setAge(int age) {
+	public void setAge(Long age) {
 		this.age = age;
 	}
 
@@ -161,11 +186,11 @@ public class Users {
 		this.personality = personality;
 	}
 
-	public int getEmoLevel() {
+	public Long getEmoLevel() {
 		return emoLevel;
 	}
 
-	public void setEmoLevel(int emoLevel) {
+	public void setEmoLevel(Long emoLevel) {
 		this.emoLevel = emoLevel;
 	}
 
@@ -185,14 +210,12 @@ public class Users {
 		this.updateAt = updateAt;
 	}
 
-
-
 	public enum Role {
 		User, Ai, Admin
 	}
-	
+
 	public enum Gender {
 		Male, Female
 	}
-	
+
 }

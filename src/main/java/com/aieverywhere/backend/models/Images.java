@@ -1,6 +1,5 @@
 package com.aieverywhere.backend.models;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,18 +16,20 @@ public class Images {
 	private String imagePath;
 	private String description;
 	private Boolean isUploadByUser;
+	private Boolean isAvatar;
 	private Long useCount;
-	
+
 	public Images() {
-		
+
 	}
 
-	public Images(Long imageId, String imagePath, String description, Boolean isUploadByUser, Long useCount
-			) {
+	public Images(Long imageId, String imagePath, String description, Boolean isUploadByUser, Boolean isAvatar,
+			Long useCount) {
 		this.imageId = imageId;
 		this.imagePath = imagePath;
 		this.description = description;
 		this.isUploadByUser = isUploadByUser;
+		this.isAvatar = isAvatar;
 		this.useCount = useCount;
 	}
 
@@ -56,12 +57,20 @@ public class Images {
 		this.description = description;
 	}
 
-	public Boolean isUploadByUser() {
+	public Boolean getIsUploadByUser() {
 		return isUploadByUser;
 	}
 
-	public void setUploadByUser(Boolean isUploadByUser) {
+	public void setIsUploadByUser(Boolean isUploadByUser) {
 		this.isUploadByUser = isUploadByUser;
+	}
+
+	public Boolean getIsAvatar() {
+		return isAvatar;
+	}
+
+	public void setIsAvatar(Boolean isAvatar) {
+		this.isAvatar = isAvatar;
 	}
 
 	public Long getUseCount() {
@@ -71,7 +80,5 @@ public class Images {
 	public void setUseCount(Long useCount) {
 		this.useCount = useCount;
 	}
-
-	
 
 }

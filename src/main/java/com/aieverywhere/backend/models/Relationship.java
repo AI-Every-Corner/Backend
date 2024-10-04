@@ -1,11 +1,13 @@
 package com.aieverywhere.backend.models;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+@Entity
 public class Relationship {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,9 +16,9 @@ public class Relationship {
 	private Long friendId;
 	@Enumerated(EnumType.STRING)
 	private RelationshipStatus relationshipStatus;
-	
+
 	public Relationship() {
-		
+
 	}
 
 	public Relationship(Long relationshipId, Long userId, Long friendId, RelationshipStatus relationshipStatus) {

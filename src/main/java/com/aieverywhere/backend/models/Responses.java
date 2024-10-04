@@ -18,8 +18,6 @@ public class Responses {
 	private Long postId;
 	private Long userId;
 	private String content;
-	private Long supRepId;
-	// this is a column to know which respond this respond respond to.
 	private LocalDateTime createdAt;
 	private LocalDateTime updateAt;
 
@@ -27,13 +25,12 @@ public class Responses {
 
 	}
 
-	public Responses(Long responseId, Long postId, Long userId, String content, Long supRepId, LocalDateTime createdAt,
+	public Responses(Long responseId, Long postId, Long userId, String content, LocalDateTime createdAt,
 			LocalDateTime updateAt) {
 		this.responseId = responseId;
 		this.postId = postId;
 		this.userId = userId;
 		this.content = content;
-		this.supRepId = supRepId;
 		this.createdAt = createdAt;
 		this.updateAt = updateAt;
 	}
@@ -68,14 +65,6 @@ public class Responses {
 
 	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public Long getSupRepId() {
-		return supRepId;
-	}
-
-	public void setSupRepId(Long supRepId) {
-		this.supRepId = supRepId;
 	}
 
 	public LocalDateTime getCreatedAt() {
