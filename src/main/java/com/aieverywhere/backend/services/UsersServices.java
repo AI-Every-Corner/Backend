@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.models.Users;
@@ -19,33 +20,54 @@ public class UsersServices implements UserDetailsService {
 	@Autowired
 	public UsersServices(UserRepo userRepo) {
 		this.userRepo = userRepo;
-
+	}
+	
+	public Long getUsersCount() {
+		return userRepo.count();
 	}
 
-	public Users CreateUsers(Users user) {
-		return userRepo.save(user);
-		
-	}
-
-	public String login(String username, String password) {
-		Users user = userRepo.findByUsername(username);
-		if(user == null) {
-			return "cant found user";
+	public String createUsers(Users user) throws Exception {
+		try {
+			String hashPassword = user.getPassword();
+			hashPassword = new BCryptPasswordEncoder().encode(hashPassword);
+			user.setPassword(hashPassword);
+			userRepo.save(user);
+			return "register success";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "register failed " + e.getMessage();
 		}
-		if(user.getPassword().equals(password)) {
-			return "login success";
+	}
+
+	public Users getUsersByUsersId(Long userId) {
+		try {
+			Users getUser = userRepo.findByUserId(userId);
+			return getUser;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		return "wrong password";
 	}
 
-	public String updateUser(Users user) {
-		
-		return "the result of update";
-
+	public String deleteUser(Long userId) throws Exception {
+		try {
+			userRepo.deleteById(userId);
+			return "delete success";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "delete failed";
+		}
 	}
 
-	public String deleteUser(int userId) {
-		return "the result of update";
+	public String updateUser(Long userId ,Users user) throws Exception {
+		try {
+			user.setUserId(userId);
+			userRepo.save(user);
+			return "update success";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "update failed";
+		}
 	}
 
 	// this is use for spring security
