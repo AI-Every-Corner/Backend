@@ -47,6 +47,10 @@ build/
 *.tar.gz
 *.rar
 
+# Ignore images in resources directory
+src/main/resources/images/
+src/main/resources/application.properties
+
 .classpath
 .project
 .settings

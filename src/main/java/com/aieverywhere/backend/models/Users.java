@@ -1,6 +1,7 @@
 package com.aieverywhere.backend.models;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +26,7 @@ public class Users {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 		
-	private LocalDateTime birth;
+	private LocalDate birth;
 	
 	private int age;
 	
@@ -50,7 +51,7 @@ public class Users {
 		
 	}
 	
-	public Users(int userId, String username, String password, Role role, LocalDateTime birth, int age,
+	public Users(int userId, String username, String password, Role role, LocalDate birth, int age,
 			Gender gender, String email, String phoneNum, String imagePath, String personality, int emoLevel,
 			LocalDateTime createdAt, LocalDateTime updateAt) {
 		this.userId = userId;
@@ -105,11 +106,11 @@ public class Users {
 
 	
 
-	public LocalDateTime getBirth() {
+	public LocalDate getBirth() {
 		return birth;
 	}
 
-	public void setBirth(LocalDateTime birth) {
+	public void setBirth(LocalDate birth) {
 		this.birth = birth;
 	}
 
