@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.models.Users;
@@ -16,58 +16,59 @@ import com.aieverywhere.backend.repostories.UserRepo;
 @Service
 public class UsersServices implements UserDetailsService {
 	private final UserRepo userRepo;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UsersServices(UserRepo userRepo) {
+	public UsersServices(UserRepo userRepo, PasswordEncoder passwordEncoder) {
 		this.userRepo = userRepo;
-	}
-	
-	public Long getUsersCount() {
-		return userRepo.count();
+		this.passwordEncoder = passwordEncoder;
 	}
 
-	public String createUsers(Users user) throws Exception {
-		try {
-			String hashPassword = user.getPassword();
-			hashPassword = new BCryptPasswordEncoder().encode(hashPassword);
-			user.setPassword(hashPassword);
-			userRepo.save(user);
-			return "register success";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "register failed " + e.getMessage();
-		}
+	public Users createUsers(Users user) {
+		// 加密密碼
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		return userRepo.save(user);
 	}
 
-	public Users getUsersByUsersId(Long userId) {
-		try {
-			Users getUser = userRepo.findByUserId(userId);
-			return getUser;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	// public String login(String username, String password) {
+	// Users user = userRepo.findByUsername(username);
+	// if(user == null) {
+	// return "cant found user";
+	// }
+	// if(user.getPassword().equals(password)) {
+	// return "login success";
+	// }
+	// return "wrong password";
+	// }
+
+	public boolean existsByUsername(String username) {
+		return userRepo.existsByUsername(username);
 	}
 
-	public String deleteUser(Long userId) throws Exception {
-		try {
-			userRepo.deleteById(userId);
-			return "delete success";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "delete failed";
-		}
+	public boolean existsByEmail(String email) {
+		return userRepo.existsByEmail(email);
 	}
 
-	public String updateUser(Long userId ,Users user) throws Exception {
-		try {
-			user.setUserId(userId);
-			userRepo.save(user);
-			return "update success";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "update failed";
+	public boolean checkPassword(String username, String password) {
+		Users user = userRepo.findByUsername(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("User not found");
 		}
+		return passwordEncoder.matches(password, user.getPassword());
+	}
+
+	public Users findByUsername(String username) {
+		return userRepo.findByUsername(username);
+	}
+
+	public String updateUser(Users user) {
+
+		return "the result of update";
+
+	}
+
+	public String deleteUser(int userId) {
+		return "the result of update";
 	}
 
 	// this is use for spring security

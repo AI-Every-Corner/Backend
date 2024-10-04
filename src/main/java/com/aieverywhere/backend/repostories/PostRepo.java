@@ -7,16 +7,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.aieverywhere.backend.models.Posts;
 
-
-
 public interface PostRepo extends JpaRepository<Posts, Long>, JpaSpecificationExecutor<Posts> {
-	//List<Posts> findAllPostsByUserId(List<Long> userIds);
-	
+	// List<Posts> findAllPostsByUserId(List<Long> userIds);
+
 	List<Posts> findAllPostsByUserIdIn(List<Long> userId);
 
 	Posts findByPostId(Long postId);
 
-    List<Posts> findAllByUserIdOrderByCreatedAtAsc(Long userId);
+	List<Posts> findAllByUserIdOrderByCreatedAtAsc(Long userId);
 
-	
 }

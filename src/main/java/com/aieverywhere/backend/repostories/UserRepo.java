@@ -16,7 +16,6 @@ public interface UserRepo extends JpaRepository<Users, Long>, JpaSpecificationEx
 
 	boolean existsByPhoneNum(String phoneNum);
 
-    long count();
+	long count();
 
-	
 }
