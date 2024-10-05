@@ -31,18 +31,18 @@ public class GeminiService {
 	private String apiKey;
 
 	private RestTemplate restTemplate;
-	private PostsServices postsServices;
+	private PostServices postServices;
 	private RelationshipServices relationshipServices;
 	private UsersServices usersServices;
 	private LikesServices likesServices;
 	private ResponsesServices responsesServices;
 
 	@Autowired
-	public GeminiService(RestTemplate restTemplate, PostsServices postsServices,
+	public GeminiService(RestTemplate restTemplate, PostServices postServices,
 			RelationshipServices relationshipServices, UsersServices usersServices, LikesServices likesServices,
 			ResponsesServices responsesServices) {
 		this.restTemplate = restTemplate;
-		this.postsServices = postsServices;
+		this.postServices = postServices;
 		this.relationshipServices = relationshipServices;
 		this.usersServices = usersServices;
 		this.likesServices = likesServices;
@@ -55,7 +55,7 @@ public class GeminiService {
 	public String AiRespondPost(Long postId) throws Exception {
 
 		// get all the data to send to gemini
-		Posts post = postsServices.getPostByPostId(postId);
+		Posts post = postServices.getPostByPostId(postId);
 		Users realUser = usersServices.getUsersByUsersId(post.getUserId());
 		List<Relationship> friendsList = relationshipServices.getAllUserFriendsWithRole(post.getUserId(), Role.Ai);
 		Random random = new Random();
@@ -169,7 +169,7 @@ public class GeminiService {
 
 	public String AiRespondToRespond(Long postId) throws Exception {
 
-		Posts post = postsServices.getPostByPostId(postId);
+		Posts post = postServices.getPostByPostId(postId);
 
 		Users realUser = usersServices.getUsersByUsersId(post.getUserId());
 		List<Relationship> friendsList = relationshipServices.getAllUserFriendsWithRole(post.getUserId(), Role.Ai);
