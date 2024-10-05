@@ -16,4 +16,8 @@ public interface PostRepo extends JpaRepository<Posts, Long>, JpaSpecificationEx
 
 	List<Posts> findAllByUserIdOrderByCreatedAtAsc(Long userId);
 
+	boolean existsByPostId(int postId);
+
+	void deleteByPostId(int postId);
+
 }

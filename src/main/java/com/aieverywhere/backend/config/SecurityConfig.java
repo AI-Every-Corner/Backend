@@ -20,52 +20,54 @@ import com.aieverywhere.backend.services.UsersServices;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UsersServices usersServices;
+	private UsersServices usersServices;
 
-    @Autowired
-    public SecurityConfig(UsersServices usersServices) {
-        this.usersServices = usersServices;
+	@Autowired
+	public SecurityConfig(UsersServices usersServices) {
+		this.usersServices = usersServices;
 
-    }
+	}
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(customizer -> customizer.disable())
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/login").permitAll()
-                        // .requestMatchers("/api/**").permitAll()
-                        // .requestMatchers("/api/login").permitAll()
-                        // .requestMatchers("/api/users").hasRole("ADMIN")
-                        // .requestMatchers("/api/products", "/api/orders",
-                        // "/api/users/**","/api/orderitem").hasAnyRole("SELLER", "ADMIN")
-                        .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(customizer -> customizer.disable())
+				.authorizeHttpRequests(authorize -> authorize.requestMatchers("/login").permitAll()
+						// .requestMatchers("/api/**").permitAll()
+						// .requestMatchers("/api/login").permitAll()
+						// .requestMatchers("/api/users").hasRole("ADMIN")
+						// .requestMatchers("/api/products", "/api/orders",
+						// "/api/users/**","/api/orderitem").hasAnyRole("SELLER", "ADMIN")
+						.anyRequest().authenticated())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authenticationProvider(authenticationProvider())
+				.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(usersServices);
-        authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());
-        return authenticationProvider;
-    }
+	@Bean
+	public AuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+		authenticationProvider.setUserDetailsService(usersServices);
+		authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());
+		return authenticationProvider;
+	}
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
 
-    @Bean
-    public JwtUtils jwtUtils() {
-        return new JwtUtils();
-    }
+	@Bean
+	public JwtUtils jwtUtils() {
+		return new JwtUtils();
+	}
 
-    @Bean
-    public JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter(jwtUtils(), usersServices);
-    }
+	@Bean
+	public JwtAuthFilter jwtAuthFilter() {
+		return new JwtAuthFilter(jwtUtils(), usersServices);
+	}
+
+	
 
 }

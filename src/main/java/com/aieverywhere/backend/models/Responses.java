@@ -19,8 +19,6 @@ public class Responses {
 	private Long userId;
 	private String content;
 	private Long likes;
-	private Long supRepId;
-	// this is a column to know which respond this respond respond to.
 	private LocalDateTime createdAt;
 	private LocalDateTime updateAt;
 
@@ -36,7 +34,6 @@ public class Responses {
 		this.userId = userId;
 		this.content = content;
 		this.likes = likes;
-		this.supRepId = supRepId;
 		this.createdAt = createdAt;
 		this.updateAt = updateAt;
 	}

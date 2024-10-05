@@ -1,7 +1,7 @@
 package com.aieverywhere.backend.models;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,7 +29,7 @@ public class Users {
 
 	private String nickName;
 
-	private LocalDateTime birth;
+	private LocalDate birth;
 
 	private Long age;
 
@@ -71,7 +71,7 @@ public class Users {
 		this.updateAt = argUser.getUpdateAt();
 	}
 
-	public Users(Long userId, String username, String password, Role role, String nickName, LocalDateTime birth,
+	public Users(Long userId, String username, String password, Role role, String nickName, LocalDate birth,
 			Long age, Gender gender,
 			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
 			LocalDateTime updateAt) {

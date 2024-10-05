@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.models.Users;
@@ -16,12 +16,12 @@ import com.aieverywhere.backend.repostories.UserRepo;
 @Service
 public class UsersServices implements UserDetailsService {
 	private final UserRepo userRepo;
-	private final PasswordEncoder passwordEncoder;
+	private BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UsersServices(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+	public UsersServices(UserRepo userRepo) {
 		this.userRepo = userRepo;
-		this.passwordEncoder = passwordEncoder;
+		this.passwordEncoder = new BCryptPasswordEncoder();
 	}
 
 	public Users createUsers(Users user) {
@@ -81,5 +81,16 @@ public class UsersServices implements UserDetailsService {
 		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
 				Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
 	}
+
+	public Users getUsersByUsersId(Long userId) {
+		return userRepo.findByUserId(userId);
+		
+	}
+
+	public Long getUsersCount() {
+		return userRepo.count();
+	}
+	
+	
 
 }

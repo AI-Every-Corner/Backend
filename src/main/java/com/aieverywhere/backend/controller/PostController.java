@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -14,18 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.hibernate.query.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
-import com.aieverywhere.backend.models.Posts;
-import com.aieverywhere.backend.services.PostServices;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -34,23 +27,25 @@ import jakarta.persistence.Query;
 @RequestMapping("/")
 public class PostController {
 
-    private PostsServices postsServices;
-    private EntityManager entityManager;
+	private PostsServices postsServices;
+	private EntityManager entityManager;
 
-    @Autowired
-    public PostController(PostsServices postsServices, EntityManager entityManager) {
-        this.postsServices = postsServices;
-        this.entityManager = entityManager;
-    }
+	@Autowired
+	public PostController(PostsServices postsServices, EntityManager entityManager) {
+		this.postsServices = postsServices;
+		this.entityManager = entityManager;
+	}
 
-    @GetMapping("posts")
+	@GetMapping("posts")
     public Map<String, Object> queryPage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page, 
+            @RequestParam(defaultValue = "10") int size
+            ) {
 
         // SQL query
-        String sqlStr = "SELECT p.post_id AS postId, p.content AS content, u.username AS username " +
-                "FROM posts p JOIN users u ON p.user_id = u.user_id";
+        String sqlStr = "SELECT p.post_id AS postId, p.content AS content, u.username AS username, i.image_path AS imagePath " +
+                "FROM posts p JOIN users u ON p.user_id = u.user_id " + 
+                "JOIN images i ON p.img_id = i.image_id";
 
         // Pagination
         int offset = page * size;
@@ -62,7 +57,7 @@ public class PostController {
         query.setFirstResult(offset);
         query.setMaxResults(size);
 
-        // Execute query and retrieve results
+     // Execute query and retrieve results
         List<Object[]> results = query.getResultList();
 
         // Transform results into PostResponseDTO
@@ -71,14 +66,14 @@ public class PostController {
             Long postId = ((Number) row[0]).longValue();
             String content = (String) row[1];
             String username = (String) row[2];
-            postRes.add(new PostResponseDTO(postId, content, username));
+            String imagePath = (String) row[3];
+            postRes.add(new PostResponseDTO(postId, content, username, imagePath));
         }
 
         // Modified count query to get the total number of items
         String cntSqlStr = "SELECT COUNT(*) FROM POSTS";
         Query cntQuery = entityManager.createNativeQuery(cntSqlStr);
         System.out.println("cnt: " + cntQuery);
-
         // Retrieve the total number of items
         Long totalItems = ((Number) cntQuery.getSingleResult()).longValue();
         int totalPages = (int) Math.ceil((double) totalItems / size);
@@ -93,16 +88,16 @@ public class PostController {
         return rs;
     }
 
-    @PostMapping("/monthreview/{userId}")
-    public ResponseEntity<?> monthReview(@PathVariable Long userId) {
-        try {
-            Map<Integer, Double> month = postsServices.monthReviewData(userId);
-            return ResponseEntity.status(200).body(month);
+	@PostMapping("/monthreview/{userId}")
+	public ResponseEntity<?> monthReview(@PathVariable Long userId) {
+		try {
+			Map<Integer, Double> month = postsServices.monthReviewData(userId);
+			return ResponseEntity.status(200).body(month);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("failed " + e.getMessage());
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(500).body("failed " + e.getMessage());
+		}
 
-    }
+	}
 }
