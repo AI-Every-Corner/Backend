@@ -8,7 +8,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,7 +86,7 @@ public class UserController {
         newUser.setUpdateAt(LocalDateTime.now());
 
         // 計算年齡
-        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        long age = Period.between(birthDate, LocalDate.now()).getYears();
         newUser.setAge(age);
 
         // 保存用戶
@@ -120,10 +123,10 @@ public class UserController {
             String jwt = jwtUtils.generateToken(userDetails);
 
             Users user = usersServices.findByUsername(loginRequest.getUsername());
-            LoginResponse response = new LoginResponse(jwt, user.getImagePath());
+            LoginResponse response = new LoginResponse(jwt, user.getUserId(), user.getImagePath());
 
             System.out.println("用戶 " + loginRequest.getUsername() + " 登錄成功");
-            return ResponseEntity.ok(new LoginResponse(jwt, user.getImagePath()));
+            return ResponseEntity.ok(new LoginResponse(jwt, user.getUserId(), user.getImagePath()));
 
         } catch (AuthenticationException e) {
             System.out.println("認證失敗：" + e.getMessage());
@@ -136,10 +139,12 @@ public class UserController {
 
     public class LoginResponse {
         private String token;
+        private Long userId;
         private String imagePath;
     
-        public LoginResponse(String token, String imagePath) {
+        public LoginResponse(String token, Long userId ,String imagePath) {
             this.token = token;
+            this.userId = userId;
             this.imagePath = imagePath;
         }
     
@@ -158,6 +163,37 @@ public class UserController {
         public void setImagePath(String imagePath) {
             this.imagePath = imagePath;
         }
+
+		public Long getUserId() {
+			return userId;
+		}
+
+		public void setUserId(Long userId) {
+			this.userId = userId;
+		}
+        
+    }
+    
+    @GetMapping("/{userId}")
+    public ResponseEntity<Users> getUser(@PathVariable Long userId) {
+        Users user = usersServices.findByUserId(userId);
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody Users updatedUser) {
+        
+    	try {
+            Users user = usersServices.updateUser(userId, updatedUser);
+            return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
+        } catch (RuntimeException e) {
+            // 捕捉到用戶不存在或其他問題時的異常
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在或更新失敗");
+        } catch (Exception e) {
+            // 捕捉任何其他的異常
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，更新失敗");
+        }
+    	
     }
 
 }

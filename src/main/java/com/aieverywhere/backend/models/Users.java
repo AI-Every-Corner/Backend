@@ -17,10 +17,12 @@ public class Users {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int userId;
+	private Long userId;
 	
 	private String username;
 	
+	private String nickname;
+
 	private String password;
 	
 	@Enumerated(EnumType.STRING)
@@ -28,7 +30,7 @@ public class Users {
 		
 	private LocalDate birth;
 	
-	private int age;
+	private Long age;
 	
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
@@ -41,7 +43,7 @@ public class Users {
 	
 	private String personality;
 	
-	private int emoLevel;
+	private Long emoLevel;
 	
 	private LocalDateTime createdAt;
 	
@@ -51,11 +53,12 @@ public class Users {
 		
 	}
 	
-	public Users(int userId, String username, String password, Role role, LocalDate birth, int age,
-			Gender gender, String email, String phoneNum, String imagePath, String personality, int emoLevel,
+	public Users(Long userId, String username, String nickname, String password, Role role, LocalDate birth, Long age,
+			Gender gender, String email, String phoneNum, String imagePath, String personality, Long emoLevel,
 			LocalDateTime createdAt, LocalDateTime updateAt) {
 		this.userId = userId;
 		this.username = username;
+		this.nickname = nickname;
 		this.password = password;
 		this.role = Role.User;
 		this.birth = birth;
@@ -72,11 +75,11 @@ public class Users {
 	
 	
 
-	public int getUserId() {
+	public long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
@@ -86,6 +89,14 @@ public class Users {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public String getPassword() {
@@ -114,12 +125,12 @@ public class Users {
 		this.birth = birth;
 	}
 
-	public int getAge() {
+	public long getAge() {
 		return age;
 	}
 
-	public void setAge(int age) {
-		this.age = age;
+	public void setAge(Long age2) {
+		this.age = age2;
 	}
 
 	public Gender getGender() {
@@ -162,11 +173,11 @@ public class Users {
 		this.personality = personality;
 	}
 
-	public int getEmoLevel() {
+	public long getEmoLevel() {
 		return emoLevel;
 	}
 
-	public void setEmoLevel(int emoLevel) {
+	public void setEmoLevel(Long emoLevel) {
 		this.emoLevel = emoLevel;
 	}
 

@@ -9,7 +9,7 @@ import com.aieverywhere.backend.models.Users;
 @Repository
 public interface UserRepo extends JpaRepository<Users, Integer>, JpaSpecificationExecutor<Users> {
 	Users findByUsername(String username);
-	Users findByUserId(int userid);
+	Users findByUserId(Long userid);
 	boolean existsByUsername(String username);
 	boolean existsByEmail(String email);
 }
