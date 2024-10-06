@@ -1,5 +1,9 @@
 package com.aieverywhere.backend.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.LocalDate;
 
 import com.aieverywhere.backend.config.JwtUtils;
 import com.aieverywhere.backend.models.Users;
@@ -118,7 +118,7 @@ public class UserController {
 			String jwt = jwtUtils.generateToken(userDetails);
 
 			Users user = usersServices.findByUsername(loginRequest.getUsername());
-			LoginResponse response = new LoginResponse(jwt, user.getImagePath());
+			LoginResponse response = new LoginResponse(jwt, user.getImagePath(),user.getUserId());
 
 			System.out.println("用戶 " + loginRequest.getUsername() + " 登錄成功");
 			return ResponseEntity.status(200).body(response);
@@ -135,12 +135,14 @@ public class UserController {
 	public class LoginResponse {
 		private String token;
 		private String imagePath;
+		private Long userId;
 
-		public LoginResponse(String token, String imagePath) {
+		public LoginResponse(String token, String imagePath, Long userId) {
 			this.token = token;
 			this.imagePath = imagePath;
+			this.userId=userId;
 		}
-
+		
 		public String getToken() {
 			return token;
 		}
@@ -155,6 +157,14 @@ public class UserController {
 
 		public void setImagePath(String imagePath) {
 			this.imagePath = imagePath;
+		}
+
+		public Long getUserId() {
+			return userId;
+		}
+
+		public void setUserId(Long userId) {
+			this.userId = userId;
 		}
 	}
 

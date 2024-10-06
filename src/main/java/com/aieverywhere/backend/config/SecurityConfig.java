@@ -25,13 +25,14 @@ public class SecurityConfig {
 	@Autowired
 	public SecurityConfig(UsersServices usersServices) {
 		this.usersServices = usersServices;
-
 	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(customizer -> customizer.disable())
-				.authorizeHttpRequests(authorize -> authorize.requestMatchers("/login").permitAll()
+				.authorizeHttpRequests(authorize -> authorize
+						 .requestMatchers("/api/auth/login","/api/auth/signup").permitAll()
+						// .requestMatchers("/**").permitAll()
 						// .requestMatchers("/api/**").permitAll()
 						// .requestMatchers("/api/login").permitAll()
 						// .requestMatchers("/api/users").hasRole("ADMIN")

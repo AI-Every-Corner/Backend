@@ -90,39 +90,38 @@ public class PostServices {
 	}
 
 	// month is all upperCase English
-	public Map<Integer, Double> monthReviewData(Long userId) {
+	public Map<LocalDateTime, Double> monthReviewData(Long userId) {
 		List<Posts> allUserPost = postRepo.findAllByUserIdOrderByCreatedAtAsc(userId);
-		Map<Integer, List<Double>> monthReview = new HashMap<>();
-
-		List<Posts> postInThisMonth = allUserPost.stream()
-				.filter(post -> post.getCreatedAt().getMonth() == LocalDateTime.now().getMonth())
+		Map<LocalDateTime, List<Double> >yearReview = new HashMap<>();
+		
+		List<Posts> postInThisYear = allUserPost.stream()
+				.filter(post -> post.getCreatedAt().getYear() == LocalDateTime.now().getYear())
 				.collect(Collectors.toList());
-		for (Posts post : postInThisMonth) {
-			System.out.println(post.toString());
-		}
-		for (Posts post : postInThisMonth) {
-			if (monthReview.containsKey(post.getCreatedAt().getDayOfMonth())) {
-				List<Double> value = monthReview.get(post.getCreatedAt().getDayOfMonth());
+		
+
+		for (Posts post : postInThisYear) {
+			if (yearReview.containsKey(post.getCreatedAt())) {
+				List<Double> value = yearReview.get(post.getCreatedAt());
 				value.add(post.getMoodScore().doubleValue());
 			} else {
-				monthReview.put(post.getCreatedAt().getDayOfMonth(),
+				yearReview.put(post.getCreatedAt(),
 						new ArrayList<>(List.of(post.getMoodScore().doubleValue())));
 			}
 		}
 
-		Map<Integer, Double> arrangeMap = new HashMap<>();
-		monthReview.forEach((key, value) -> {
+		Map<LocalDateTime, Double> resultMap = new HashMap<>();
+		yearReview.forEach((key, value) -> {
 			if (value.size() > 1) {
 				int sum = 0;
 				for (int i = 0; i < value.size(); i++) {
 					sum += value.get(i);
 				}
-				arrangeMap.put(key, (double) (sum / value.size()));
+				resultMap.put(key, (double) (sum / value.size()));
 			} else {
-				arrangeMap.put(key, value.get(0));
+				resultMap.put(key, value.get(0));
 			}
 		});
-		return arrangeMap;
+		return resultMap ;
 	}
 
 }
