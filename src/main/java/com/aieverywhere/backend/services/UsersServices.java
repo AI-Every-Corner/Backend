@@ -91,6 +91,8 @@ public class UsersServices implements UserDetailsService {
 		return userRepo.count();
 	}
 	
-	
+	public Users findByEmail(String email) {
+		return userRepo.findByEmail(email);
+	}
 
 }

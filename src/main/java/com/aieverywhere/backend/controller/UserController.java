@@ -46,7 +46,8 @@ public class UserController {
 	// signup
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestParam("image") MultipartFile file,
-			@RequestParam("username") String username, @RequestParam("password") String password,
+			@RequestParam("username") String username, @RequestParam("nickName") String nickName,
+			@RequestParam("password") String password, 
 			@RequestParam("birth") String birth, @RequestParam("gender") String gender,
 			@RequestParam("email") String email, @RequestParam("phoneNum") String phoneNum,
 			@RequestParam(value = "personality", required = false) String personality,
@@ -69,6 +70,7 @@ public class UserController {
 			// 創建新用戶
 			Users newUser = new Users();
 			newUser.setUsername(username);
+			newUser.setNickName(nickName);
 			newUser.setPassword(password);
 			newUser.setRole(Users.Role.User);
 			LocalDate birthDate = LocalDate.parse(birth.toString());
