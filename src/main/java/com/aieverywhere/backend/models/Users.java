@@ -19,20 +19,20 @@ public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
-
+	
 	private String username;
+	
+	private String nickname;
 
 	private String password;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	private String nickName;
-
 	private LocalDate birth;
-
+	
 	private Long age;
-
+	
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
@@ -44,8 +44,9 @@ public class Users {
 	@Column(nullable = true)
 	private String personality;
 
+	
 	private Long emoLevel;
-
+	
 	private LocalDateTime createdAt;
 
 	private LocalDateTime updateAt;
@@ -59,7 +60,7 @@ public class Users {
 		this.username = argUser.getUsername();
 		this.password = argUser.getPassword();
 		this.role = Role.User;
-		this.nickName = argUser.getNickName();
+		this.nickname = argUser.getNickName();
 		this.birth = argUser.getBirth();
 		this.age = argUser.getAge();
 		this.gender = argUser.getGender();
@@ -72,15 +73,16 @@ public class Users {
 		this.updateAt = argUser.getUpdateAt();
 	}
 
-	public Users(Long userId, String username, String password, Role role, String nickName, LocalDate birth,
+	public Users(Long userId, String username, String password, Role role, String nickname, LocalDate birth,
 			Long age, Gender gender,
 			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
 			LocalDateTime updateAt) {
+
 		this.userId = userId;
 		this.username = username;
+		this.nickname = nickname;
 		this.password = password;
 		this.role = Role.User;
-		this.nickName = nickName;
 		this.birth = birth;
 		this.age = age;
 		this.gender = gender;
@@ -94,6 +96,7 @@ public class Users {
 	}
 
 	public Long getUserId() {
+
 		return userId;
 	}
 
@@ -107,6 +110,14 @@ public class Users {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	public String getNickName() {
+		return nickname;
+	}
+
+	public void setNickName(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public String getPassword() {
@@ -125,14 +136,6 @@ public class Users {
 		this.role = role;
 	}
 
-	public String getNickName() {
-		return nickName;
-	}
-
-	public void setNickName(String nickName) {
-		this.nickName = nickName;
-	}
-
 	public LocalDate getBirth() {
 		return birth;
 	}
@@ -147,6 +150,7 @@ public class Users {
 
 	public void setAge(Long age) {
 		this.age = age;
+
 	}
 
 	public Gender getGender() {
@@ -190,6 +194,7 @@ public class Users {
 	}
 
 	public Long getEmoLevel() {
+
 		return emoLevel;
 	}
 
