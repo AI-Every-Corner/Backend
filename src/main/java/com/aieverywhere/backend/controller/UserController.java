@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.config.JwtUtils;
+import com.aieverywhere.backend.dto.LoginResponse;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.LoginRequest;
 import com.aieverywhere.backend.services.ImageService;
@@ -129,42 +130,6 @@ public class UserController {
 		} catch (Exception e) {
 			System.out.println("登錄過程中發生錯誤：" + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("登錄過程中發生錯誤");
-		}
-	}
-
-	public class LoginResponse {
-		private String token;
-		private String imagePath;
-		private Long userId;
-
-		public LoginResponse(String token, String imagePath, Long userId) {
-			this.token = token;
-			this.imagePath = imagePath;
-			this.userId=userId;
-		}
-		
-		public String getToken() {
-			return token;
-		}
-
-		public void setToken(String token) {
-			this.token = token;
-		}
-
-		public String getImagePath() {
-			return imagePath;
-		}
-
-		public void setImagePath(String imagePath) {
-			this.imagePath = imagePath;
-		}
-
-		public Long getUserId() {
-			return userId;
-		}
-
-		public void setUserId(Long userId) {
-			this.userId = userId;
 		}
 	}
 
