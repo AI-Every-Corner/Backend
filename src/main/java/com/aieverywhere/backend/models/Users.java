@@ -56,6 +56,7 @@ public class Users {
 	}
 
 	public Users(Users argUser) {
+		this.userId = argUser.getUserId();
 		this.username = argUser.getUsername();
 		this.password = argUser.getPassword();
 		this.role = Role.User;

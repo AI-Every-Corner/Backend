@@ -5,11 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 
 import com.aieverywhere.backend.models.Images;
 import com.aieverywhere.backend.repostories.ImageRepo;
+import com.aieverywhere.backend.repostories.ImageSpecifications;
 
 @Service
 public class ImagesServices {
@@ -32,7 +34,7 @@ public class ImagesServices {
 	
 	public Images findImageById(Long imageId) throws Exception{
 		try {
-			return imageRepo.findByImageId(imageId);
+			return imageRepo.findOne(ImageSpecifications.hasImageId(imageId)).get();
 		}catch(Exception e) {
 			e.printStackTrace();
 			return null;
