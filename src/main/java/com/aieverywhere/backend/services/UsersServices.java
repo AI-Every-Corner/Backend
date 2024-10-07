@@ -73,7 +73,7 @@ public class UsersServices implements UserDetailsService {
 			throw new UsernameNotFoundException("User not found");
 		}
 
-		existingUser.setNickname(updatedUser.getNickname());
+		existingUser.setNickName(updatedUser.getNickName());
 		existingUser.setGender(updatedUser.getGender());
 		existingUser.setBirth(updatedUser.getBirth());
 		existingUser.setPhoneNum(updatedUser.getPhoneNum());
