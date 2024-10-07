@@ -11,7 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.models.Users;
+import com.aieverywhere.backend.repostories.ImageSpecifications;
 import com.aieverywhere.backend.repostories.UserRepo;
+import com.aieverywhere.backend.repostories.UserSpecifications;
 
 @Service
 public class UsersServices implements UserDetailsService {
@@ -82,9 +84,13 @@ public class UsersServices implements UserDetailsService {
 				Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
 	}
 
-	public Users getUsersByUsersId(Long userId) {
-		return userRepo.findByUserId(userId);
-		
+	public Users getUsersByUsersId(Long userId) throws Exception{
+		try {
+			return userRepo.findOne(UserSpecifications.hasUserId(userId)).get();
+		}catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public Long getUsersCount() {

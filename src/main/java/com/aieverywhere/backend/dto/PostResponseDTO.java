@@ -2,19 +2,19 @@ package com.aieverywhere.backend.dto;
 
 public class PostResponseDTO {
 
-	private Long postId;
-	private String content;
-	private String username; // The owner’s username
-	private String imagePath;
+	private Long postId = 0L;
+	private String content = null;
+	private String nickname = null;
+	private String imagePath = null;
 
 	// Constructors
 	public PostResponseDTO() {
 	}
 
-	public PostResponseDTO(Long postId, String content, String username, String imagePath) {
+	public PostResponseDTO(Long postId, String content, String nickname, String imagePath) {
 		this.postId = postId;
 		this.content = content;
-		this.username = username;
+		this.nickname = nickname;
 		this.imagePath = imagePath;
 	}
 
@@ -35,12 +35,12 @@ public class PostResponseDTO {
 		this.content = content;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getNickname() {
+		return nickname;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public String getImagePath() {

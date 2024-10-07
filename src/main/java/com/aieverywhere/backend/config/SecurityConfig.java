@@ -21,29 +21,32 @@ import com.aieverywhere.backend.services.UsersServices;
 public class SecurityConfig {
 
 	private UsersServices usersServices;
+	private final JwtUtils jwtUtils;
 
 	@Autowired
-	public SecurityConfig(UsersServices usersServices) {
-		this.usersServices = usersServices;
+    public SecurityConfig (UsersServices usersServices, JwtUtils jwtUtils) {
+    	this.usersServices = usersServices;
+    	this.jwtUtils = jwtUtils;
 
-	}
+    }
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(customizer -> customizer.disable())
-				.authorizeHttpRequests(authorize -> authorize.requestMatchers("/login").permitAll()
-						// .requestMatchers("/api/**").permitAll()
-						// .requestMatchers("/api/login").permitAll()
-						// .requestMatchers("/api/users").hasRole("ADMIN")
-						// .requestMatchers("/api/products", "/api/orders",
-						// "/api/users/**","/api/orderitem").hasAnyRole("SELLER", "ADMIN")
-						.anyRequest().authenticated())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authenticationProvider(authenticationProvider())
-				.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+        http
+            .csrf(customizer -> customizer.disable())
+            .authorizeHttpRequests(authorize -> authorize
+            		.requestMatchers("/**").permitAll()	
+//	              .requestMatchers("/pages/**","/punch_in").permitAll()	
+//                .requestMatchers("/api/login").permitAll()
+//                .requestMatchers("/api/users").hasRole("ADMIN")
+//                .requestMatchers("/api/products", "/api/orders", "/api/users/**","/api/orderitem").hasAnyRole("SELLER", "ADMIN")
+                .anyRequest().authenticated())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(new JwtAuthFilter(jwtUtils, usersServices), UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
-	}
+        return http.build();
+    }
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
@@ -58,15 +61,15 @@ public class SecurityConfig {
 		return config.getAuthenticationManager();
 	}
 
-	@Bean
-	public JwtUtils jwtUtils() {
-		return new JwtUtils();
-	}
+//	@Bean
+//	public JwtUtils jwtUtils() {
+//		return new JwtUtils();
+//	}
 
-	@Bean
-	public JwtAuthFilter jwtAuthFilter() {
-		return new JwtAuthFilter(jwtUtils(), usersServices);
-	}
+//	@Bean
+//	public JwtAuthFilter jwtAuthFilter() {
+//		return new JwtAuthFilter(jwtUtils(), usersServices);
+//	}
 
 	
 
