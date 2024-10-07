@@ -1,11 +1,14 @@
 package com.aieverywhere.backend.config;
 
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,32 +24,30 @@ import com.aieverywhere.backend.services.UsersServices;
 public class SecurityConfig {
 
 	private UsersServices usersServices;
-	private final JwtUtils jwtUtils;
 
 	@Autowired
-    public SecurityConfig (UsersServices usersServices, JwtUtils jwtUtils) {
-    	this.usersServices = usersServices;
-    	this.jwtUtils = jwtUtils;
-
-    }
+	public SecurityConfig(UsersServices usersServices) {
+		this.usersServices = usersServices;
+	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(customizer -> customizer.disable())
-            .authorizeHttpRequests(authorize -> authorize
-            		.requestMatchers("/**").permitAll()	
-//	              .requestMatchers("/pages/**","/punch_in").permitAll()	
-//                .requestMatchers("/api/login").permitAll()
-//                .requestMatchers("/api/users").hasRole("ADMIN")
-//                .requestMatchers("/api/products", "/api/orders", "/api/users/**","/api/orderitem").hasAnyRole("SELLER", "ADMIN")
-                .anyRequest().authenticated())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(new JwtAuthFilter(jwtUtils, usersServices), UsernamePasswordAuthenticationFilter.class);
+		http.cors(withDefaults()).csrf(customizer -> customizer.disable())
+				.authorizeHttpRequests(authorize -> authorize
+						 .requestMatchers("/api/auth/login","/api/auth/signup", "/images/**").permitAll()
+						// .requestMatchers("/**").permitAll()
+						// .requestMatchers("/api/**").permitAll()
+						// .requestMatchers("/api/login").permitAll()
+						// .requestMatchers("/api/users").hasRole("ADMIN")
+						// .requestMatchers("/api/products", "/api/orders",
+						// "/api/users/**","/api/orderitem").hasAnyRole("SELLER", "ADMIN")
+						.anyRequest().authenticated())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authenticationProvider(authenticationProvider())
+				.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+		return http.build();
+	}
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
@@ -61,15 +62,15 @@ public class SecurityConfig {
 		return config.getAuthenticationManager();
 	}
 
-//	@Bean
-//	public JwtUtils jwtUtils() {
-//		return new JwtUtils();
-//	}
+	@Bean
+	public JwtUtils jwtUtils() {
+		return new JwtUtils();
+	}
 
-//	@Bean
-//	public JwtAuthFilter jwtAuthFilter() {
-//		return new JwtAuthFilter(jwtUtils(), usersServices);
-//	}
+	@Bean
+	public JwtAuthFilter jwtAuthFilter() {
+		return new JwtAuthFilter(jwtUtils(), usersServices);
+	}
 
 	
 

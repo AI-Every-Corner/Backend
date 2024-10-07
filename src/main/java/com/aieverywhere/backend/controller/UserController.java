@@ -1,5 +1,9 @@
 package com.aieverywhere.backend.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.LocalDate;
-
 import com.aieverywhere.backend.config.JwtUtils;
+import com.aieverywhere.backend.dto.LoginResponse;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.LoginRequest;
 import com.aieverywhere.backend.services.ImageService;
@@ -118,7 +119,7 @@ public class UserController {
 			String jwt = jwtUtils.generateToken(userDetails);
 
 			Users user = usersServices.findByUsername(loginRequest.getUsername());
-			LoginResponse response = new LoginResponse(jwt, user.getImagePath());
+			LoginResponse response = new LoginResponse(jwt, user.getImagePath(),user.getUserId());
 
 			System.out.println("用戶 " + loginRequest.getUsername() + " 登錄成功");
 			return ResponseEntity.status(200).body(response);
@@ -129,32 +130,6 @@ public class UserController {
 		} catch (Exception e) {
 			System.out.println("登錄過程中發生錯誤：" + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("登錄過程中發生錯誤");
-		}
-	}
-
-	public class LoginResponse {
-		private String token;
-		private String imagePath;
-
-		public LoginResponse(String token, String imagePath) {
-			this.token = token;
-			this.imagePath = imagePath;
-		}
-
-		public String getToken() {
-			return token;
-		}
-
-		public void setToken(String token) {
-			this.token = token;
-		}
-
-		public String getImagePath() {
-			return imagePath;
-		}
-
-		public void setImagePath(String imagePath) {
-			this.imagePath = imagePath;
 		}
 	}
 
