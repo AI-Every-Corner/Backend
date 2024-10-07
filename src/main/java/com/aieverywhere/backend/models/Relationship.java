@@ -18,9 +18,9 @@ public class Relationship {
 	private Long friendId;
 	@Enumerated(EnumType.STRING)
 	private RelationshipStatus relationshipStatus;
-	
+
 	public Relationship() {
-		
+
 	}
 
 	public Relationship(Long relationshipId, Long userId, Long friendId, RelationshipStatus relationshipStatus) {

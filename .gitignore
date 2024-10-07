@@ -56,3 +56,5 @@ src/main/resources/application.properties
 .settings
 target
 bin
+/.apt_generated_tests/
+

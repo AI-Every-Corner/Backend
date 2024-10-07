@@ -20,6 +20,7 @@ public class Posts {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long postId;
+	private Long userId;
 	private Long imgId;
 	private String content;
 	private String moodTag;
@@ -28,17 +29,14 @@ public class Posts {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "userId")  // Map to userId column in Users table
-    private Users user;
-
 	public Posts() {
-		
+
 	}
 
 	public Posts(Long postId, Long userId, Long imgId, String content, String moodTag, Long moodScore, Long likes,
 			LocalDateTime createdAt, LocalDateTime updatedAt) {
 		this.postId = postId;
+		this.userId = userId;
 		this.imgId = imgId;
 		this.content = content;
 		this.moodTag = moodTag;
@@ -54,6 +52,14 @@ public class Posts {
 
 	public void setPostId(Long postId) {
 		this.postId = postId;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public Long getImgId() {
@@ -111,15 +117,5 @@ public class Posts {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-	
-	public Users getUser() {
-		return user;
-	}
-
-	public void setUser(Users user) {
-		this.user = user;
-	}
-	
-	
 
 }

@@ -1,17 +1,23 @@
 package com.aieverywhere.backend.repostories;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import com.aieverywhere.backend.models.Posts;
 
+public interface PostRepo extends JpaRepository<Posts, Long>, JpaSpecificationExecutor<Posts> {
+	// List<Posts> findAllPostsByUserId(List<Long> userIds);
 
-@Repository
-public interface PostRepo extends JpaRepository<Posts, Integer>, JpaSpecificationExecutor<Posts> {
+	List<Posts> findAllPostsByUserIdIn(List<Long> userId);
+
+	Posts findByPostId(Long postId);
+
+	List<Posts> findAllByUserIdOrderByCreatedAtAsc(Long userId);
+
+	boolean existsByPostId(int postId);
+
+	void deleteByPostId(int postId);
 
 }

@@ -1,8 +1,9 @@
 package com.aieverywhere.backend.models;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,38 +25,58 @@ public class Users {
 	private String nickname;
 
 	private String password;
-	
+
 	@Enumerated(EnumType.STRING)
 	private Role role;
-		
+
 	private LocalDate birth;
 	
 	private Long age;
 	
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
-	
+
 	private String email;
-	
+
 	private String phoneNum;
-	
+	@Column(nullable = true)
 	private String imagePath;
-	
+	@Column(nullable = true)
 	private String personality;
+
 	
 	private Long emoLevel;
 	
 	private LocalDateTime createdAt;
-	
+
 	private LocalDateTime updateAt;
-	
+
 	public Users() {
-		
+
 	}
-	
-	public Users(Long userId, String username, String nickname, String password, Role role, LocalDate birth, Long age,
-			Gender gender, String email, String phoneNum, String imagePath, String personality, Long emoLevel,
-			LocalDateTime createdAt, LocalDateTime updateAt) {
+
+	public Users(Users argUser) {
+		this.username = argUser.getUsername();
+		this.password = argUser.getPassword();
+		this.role = Role.User;
+		this.nickname = argUser.getNickname();
+		this.birth = argUser.getBirth();
+		this.age = argUser.getAge();
+		this.gender = argUser.getGender();
+		this.email = argUser.getEmail();
+		this.phoneNum = argUser.getPhoneNum();
+		this.imagePath = argUser.getImagePath();
+		this.personality = argUser.getPersonality();
+		this.emoLevel = argUser.getEmoLevel();
+		this.createdAt = argUser.getCreatedAt();
+		this.updateAt = argUser.getUpdateAt();
+	}
+
+	public Users(Long userId, String username, String password, Role role, String nickName, LocalDate birth,
+			Long age, Gender gender,
+			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
+			LocalDateTime updateAt) {
+
 		this.userId = userId;
 		this.username = username;
 		this.nickname = nickname;
@@ -72,10 +93,9 @@ public class Users {
 		this.createdAt = createdAt;
 		this.updateAt = updateAt;
 	}
-	
-	
 
-	public long getUserId() {
+	public Long getUserId() {
+
 		return userId;
 	}
 
@@ -115,8 +135,6 @@ public class Users {
 		this.role = role;
 	}
 
-	
-
 	public LocalDate getBirth() {
 		return birth;
 	}
@@ -125,12 +143,13 @@ public class Users {
 		this.birth = birth;
 	}
 
-	public long getAge() {
+	public Long getAge() {
 		return age;
 	}
 
-	public void setAge(Long age2) {
-		this.age = age2;
+	public void setAge(Long age) {
+		this.age = age;
+
 	}
 
 	public Gender getGender() {
@@ -173,7 +192,8 @@ public class Users {
 		this.personality = personality;
 	}
 
-	public long getEmoLevel() {
+	public Long getEmoLevel() {
+
 		return emoLevel;
 	}
 
@@ -197,14 +217,12 @@ public class Users {
 		this.updateAt = updateAt;
 	}
 
-
-
 	public enum Role {
 		User, Ai, Admin
 	}
-	
+
 	public enum Gender {
 		Male, Female
 	}
-	
+
 }

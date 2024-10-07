@@ -9,10 +9,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 允許所有路徑
-                .allowedOriginPatterns("*") // 允許來自指定域名的請求
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允許的 HTTP 方法
-                .allowedHeaders("*") // 允許的請求標頭
-                .allowCredentials(true); // 允許攜帶憑證（如 Cookies）
+        registry.addMapping("/**") // 匹配所有的 API 路徑
+                .allowedOrigins("http://localhost:3000") // 允許 React 應用的 URL
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // 允許的 HTTP 方法
+                .allowedHeaders("*") // 允許所有標頭
+                .allowCredentials(true); // 允許使用 cookie
     }
 }
+
