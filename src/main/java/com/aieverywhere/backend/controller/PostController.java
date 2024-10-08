@@ -33,11 +33,6 @@ public class PostController {
 		this.postServices = postServices;
 		this.entityManager = entityManager;
 	}
-	
-	@GetMapping("")
-	public ResponseEntity<?> test() {
-		return ResponseEntity.status(200).body("hello");
-	}
 
 	@GetMapping("posts")
 	public ResponseEntity<?> queryPage(@RequestParam(defaultValue = "0") int page,

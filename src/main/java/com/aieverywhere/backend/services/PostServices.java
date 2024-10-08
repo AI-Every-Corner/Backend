@@ -68,44 +68,6 @@ public class PostServices {
 		postRepo.deleteByPostId(postId);
 
 	}
-	 
-//	public Map<String, Object> getPaginatedPosts(int page, int size) {
-//	    // Create the Pageable object with the requested page and size
-//	    Pageable pageable = PageRequest.of(page, size);
-//	
-//	    // Create the specification
-//	    Specification<Object[]> PostSpec = PostSpecifications.fetchPostDetails();
-//	
-//	    // Fetch paginated results from the repository
-////	    Page<Object[]> paginatedPosts = postRepo.findAllPageablePosts(PostSpec, pageable);
-//	    Page<Object[]> paginatedPosts = postRepo.findAll(PostSpec, pageable);
-//	    System.out.println(paginatedPosts);
-//	    
-//	    List<PostResponseDTO> postRes = new ArrayList<>();
-////		for (Object[] row : pageablePosts) {
-////			Long postId = ((Number) row[0]).longValue();
-////			String content = (String) row[1];
-////			String username = (String) row[2];
-////			String imagePath = (String) row[3];
-////			postRes.add(new PostResponseDTO(postId, content, username, imagePath));
-////		}
-//	
-//	    // Create the specification for cnt
-//	    Specification<Posts> CntSpec = PostSpecifications.countPosts();
-//	    Long totalItems = postRepo.count(CntSpec);
-//
-//		// Calculate total pages based on the total number of items and page size
-//		int totalPages = (int) Math.ceil((double) totalItems / size);
-//
-//		// Prepare response
-//		Map<String, Object> postMap = new HashMap<>();
-//		postMap.put("postRes", postRes);
-//		postMap.put("currentPage", page);
-//		postMap.put("totalItems", totalItems);
-//		postMap.put("totalPages", totalPages);
-//		
-//		return postMap;
-//	}
 	
 	public Map<String, Object> getAllPosts(int page, int size) {
 	    Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
@@ -138,22 +100,18 @@ public class PostServices {
 	        // Only add posts where both nickname and imagePath are available
 	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath));
 	    }
+	    
+	    Long totalItems = postRepo.count();
+		int totalPages = (int) Math.ceil((double) totalItems / size);
 
 	    Map<String, Object> postMap = new HashMap<>();
 	    postMap.put("postRes", postsList);
 	    postMap.put("currentPage", page);
+		postMap.put("totalItems", totalItems);
+		postMap.put("totalPages", totalPages);
+		
 	    return postMap;
 	}
-
-
-//	public List<PostResponseDTO> getAllPosts(int page, int size) {
-//		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
-//		return postsPage.stream()
-//				.map(post -> new PostResponseDTO(post.getPostId(), post.getContent(),
-//						userRepo.findUsernameByUserId(post.getUserId()),
-//						imageRepo.findImagePathByImageId(post.getImgId())))
-//				.collect(Collectors.toList());
-//	}
 
 	// the userId is for find friend status and can show friends posts first
 	public List<Posts> getAllFriendPosts(Long userid) {
