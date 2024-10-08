@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.models.Images;
@@ -33,18 +34,34 @@ public class PostServices {
 	private final UserRepo userRepo;
 	private final ImageRepo imageRepo;
 	private final RelaRepo relaRepo;
+	private final ImagesServices imagesServices;
 
 	@Autowired
-	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo) {
+	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo, ImagesServices imagesServices) {
 		this.postRepo = postRepo;
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
 		this.relaRepo = relaRepo;
-
+		this.imagesServices = imagesServices;
 	}
 
-	public Posts createPost(Posts post) {
-		return postRepo.save(post);
+	public Posts createPost(Posts post, MultipartFile imageFile) {
+		try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = imagesServices.uploadImage(imageFile); // 使用已經存在的 ImagesServices 來保存圖片
+                Images image = new Images();
+                image.setImagePath(imageUrl);
+                image.setIsUploadByUser(true);
+                imagesServices.createImage(image);
+                post.setImgId(image.getImageId());
+            }
+            post.setCreatedAt(LocalDateTime.now());
+            post.setUpdatedAt(LocalDateTime.now());
+            return postRepo.save(post);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to store post: " + e.getMessage());
+        }
 	}
 
 	public Posts getPostByPostId(Long postId) {
@@ -127,7 +144,7 @@ public class PostServices {
 	        }
 
 	        // Fetch image information
-	        Images image = imageRepo.findByImageId(post.getImgId());
+	        Images image = imageRepo.findByImgId(post.getImgId());
 	        String imagePath = null;
 	        if (image != null) {
 	            imagePath = image.getImagePath();
