@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageSpecifications;
@@ -19,6 +20,9 @@ import com.aieverywhere.backend.repostories.UserSpecifications;
 public class UsersServices implements UserDetailsService {
 	private final UserRepo userRepo;
 	private BCryptPasswordEncoder passwordEncoder1;
+	
+	@Autowired
+    private ImageService imageService; // 注入圖片服務
 
 	@Autowired
 	public UsersServices(UserRepo userRepo) {
@@ -68,15 +72,17 @@ public class UsersServices implements UserDetailsService {
 		return userRepo.findByUserId(userId);
 	}
 
-	public Users updateUser(Long userId, Users updatedUser) {
+	public Users updateUser(Long userId, Users updatedUser, MultipartFile file) {
+		System.out.println("in update");
 		// 查詢現有的使用者
 		Users existingUser = findByUserId(userId);
 		if (existingUser == null) {
 			throw new UsernameNotFoundException("User not found");
 		}
+		System.out.println("user exist");
 
 		existingUser.setNickName(updatedUser.getNickName());
-		existingUser.setGender(updatedUser.getGender());
+//		existingUser.setGender(updatedUser.getGender());
 		existingUser.setBirth(updatedUser.getBirth());
 		existingUser.setPhoneNum(updatedUser.getPhoneNum());
 		existingUser.setEmail(updatedUser.getEmail());
@@ -86,15 +92,26 @@ public class UsersServices implements UserDetailsService {
 			String encryptedPassword = passwordEncoder1.encode(updatedUser.getPassword()); // 加密新密碼
 			existingUser.setPassword(encryptedPassword); // 更新加密後的密碼
 		}
+		
+		 // 如果有上傳圖片，則更新圖片路徑
+	    if (file != null && !file.isEmpty()) {
+	        try {
+	            String imagePath = imageService.uploadImage(file);
+	            existingUser.setImagePath(imagePath); // 更新圖片路徑
+	        } catch (Exception e) {
+	            // 捕獲圖片上傳異常
+	            throw new RuntimeException("圖片上傳失敗: " + e.getMessage());
+	        }
+	    }
 
 		return userRepo.save(existingUser);
 	}
 
-	public String updateUser(Users user) {
+	//public String updateUser(Users user) {
 
-		return "the result of update";
+	//	return "the result of update";
 
-	}
+	//}
 
 	public String deleteUser(int userId) {
 		return "the result of update";

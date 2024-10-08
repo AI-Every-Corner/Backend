@@ -185,5 +185,27 @@ public class PostServices {
 		});
 		return resultMap ;
 	}
+	
+	 public List<PostResponseDTO> getPostsByUserId(Long userId) {
+	        // 查找所有該用戶的帖子
+	        List<Posts> postsList = postRepo.findAllByUserIdOrderByCreatedAtAsc(userId);
+
+	        List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
+	        for (Posts post : postsList) {
+	            Users user = userRepo.findByUserId(post.getUserId());
+	            Images image = imageRepo.findByImageId(post.getImgId());
+
+	            // 構建 PostResponseDTO，檢查 user 和 image 是否為 null
+	            if (user != null && image != null) {
+	                postResponseDTOList.add(new PostResponseDTO(
+	                    post.getPostId(),
+	                    post.getContent(),
+	                    user.getNickName(),
+	                    image.getImagePath()
+	                ));
+	            }
+	        }
+	        return postResponseDTOList;
+	    }
 
 }

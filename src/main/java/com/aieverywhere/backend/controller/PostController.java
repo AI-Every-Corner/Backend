@@ -95,6 +95,18 @@ public class PostController {
 			return ResponseEntity.status(500).body("failed: " + e.getMessage());
 		}
 	}
+	
+	@GetMapping("posts/{userId}")
+	public ResponseEntity<?> getPostByUserId(@PathVariable Long userId){
+		try {
+            // 調用服務層的方法
+            List<PostResponseDTO> posts = postServices.getPostsByUserId(userId);
+            return ResponseEntity.status(200).body(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to retrieve posts: " + e.getMessage());
+        }
+	}
 
 	@PostMapping("yearReview/{userId}")
 	public ResponseEntity<?> monthReview(@PathVariable Long userId) {
