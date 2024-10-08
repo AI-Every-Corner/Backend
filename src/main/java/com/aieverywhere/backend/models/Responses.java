@@ -26,7 +26,7 @@ public class Responses {
 
 	}
 
-	public Responses(Long responseId, Long postId, Long userId, String content, Long likes, Long supRepId,
+	public Responses(Long responseId, Long postId, Long userId, String content, Long likes,
 			LocalDateTime createdAt,
 			LocalDateTime updateAt) {
 		this.responseId = responseId;

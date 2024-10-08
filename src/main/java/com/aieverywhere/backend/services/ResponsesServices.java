@@ -1,9 +1,12 @@
 package com.aieverywhere.backend.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.models.Responses;
@@ -15,7 +18,11 @@ public class ResponsesServices {
     @Autowired
     private RespRepo respRepo;
 
-    // Create a new response
+    public ResponsesServices(RespRepo respRepo) {
+		this.respRepo = respRepo;
+	}
+
+	// Create a new response
     public Responses createResponse(Responses response) {
         response.setCreatedAt(LocalDateTime.now());
         response.setUpdateAt(LocalDateTime.now());
@@ -23,8 +30,22 @@ public class ResponsesServices {
     }
 
     // Read all responses
-    public List<Responses> getAllResponses() {
-        return respRepo.findAll();
+    public List<Responses> getAllResponses(int page, int size) {
+    	Page<Responses> respPage = respRepo.findAll(PageRequest.of(page, size));
+        
+    	List<Responses> respList = new ArrayList<>();
+    	for (Responses resp : respPage) {
+    		Long responseId = resp.getResponseId();
+    		Long postId = resp.getPostId();
+    		Long userId = resp.getUserId();
+    		String content = resp.getContent();
+    		Long likes = resp.getLikes();
+    		LocalDateTime createdAt = resp.getCreatedAt();
+    		LocalDateTime updateAt = resp.getUpdateAt();
+    		
+    		respList.add(new Responses(responseId, postId, userId, content, likes, createdAt, updateAt));
+    	}
+    	return respRepo.findAll();
     }
     
  // get all responses by postId

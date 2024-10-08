@@ -28,13 +28,14 @@ public class Posts {
 	private Long likes;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private String location;
 
 	public Posts() {
 
 	}
 
 	public Posts(Long postId, Long userId, Long imgId, String content, String moodTag, Long moodScore, Long likes,
-			LocalDateTime createdAt, LocalDateTime updatedAt) {
+			LocalDateTime createdAt, LocalDateTime updatedAt, String location) {
 		this.postId = postId;
 		this.userId = userId;
 		this.imgId = imgId;
@@ -44,6 +45,7 @@ public class Posts {
 		this.likes = likes;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.location = location;
 	}
 
 	public Long getPostId() {
@@ -116,6 +118,14 @@ public class Posts {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 }
