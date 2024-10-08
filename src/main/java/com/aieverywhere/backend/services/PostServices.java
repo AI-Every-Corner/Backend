@@ -1,5 +1,6 @@
 package com.aieverywhere.backend.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class PostServices {
 
 	}
 	
-	public Map<String, Object> getAllPosts(int page, int size) {
+	public Map<String, Object> getAllPagedPosts(int page, int size) {
 	    Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
 	    
 	    List<PostResponseDTO> postsList = new ArrayList<>();
@@ -96,16 +97,18 @@ public class PostServices {
 	        } else {
 	            System.err.println("Image with ID " + post.getImgId() + " not found.");
 	        }
+	        
+	        LocalDateTime updateAt = post.getUpdatedAt();
 
 	        // Only add posts where both nickname and imagePath are available
-	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath));
+	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt));
 	    }
 	    
 	    Long totalItems = postRepo.count();
 		int totalPages = (int) Math.ceil((double) totalItems / size);
 
 	    Map<String, Object> postMap = new HashMap<>();
-	    postMap.put("postRes", postsList);
+	    postMap.put("postsList", postsList);
 	    postMap.put("currentPage", page);
 		postMap.put("totalItems", totalItems);
 		postMap.put("totalPages", totalPages);

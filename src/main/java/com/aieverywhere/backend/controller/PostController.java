@@ -84,7 +84,7 @@ public class PostController {
 //			postMap.put("totalPages", totalPages);
 
 			// Prepare response
-			Map<String, Object> postMap = postServices.getAllPosts(page, size);
+			Map<String, Object> postMap = postServices.getAllPagedPosts(page, size);
 			return ResponseEntity.status(200).body(postMap);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
