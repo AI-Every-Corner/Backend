@@ -19,20 +19,20 @@ public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
-
+	
 	private String username;
+	
+	private String nickName;
 
 	private String password;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	private String nickName;
-
 	private LocalDate birth;
-
+	
 	private Long age;
-
+	
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
@@ -44,8 +44,9 @@ public class Users {
 	@Column(nullable = true)
 	private String personality;
 
+	
 	private Long emoLevel;
-
+	
 	private LocalDateTime createdAt;
 
 	private LocalDateTime updateAt;
@@ -55,6 +56,7 @@ public class Users {
 	}
 
 	public Users(Users argUser) {
+		this.userId = argUser.getUserId();
 		this.username = argUser.getUsername();
 		this.password = argUser.getPassword();
 		this.role = Role.User;
@@ -75,11 +77,12 @@ public class Users {
 			Long age, Gender gender,
 			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
 			LocalDateTime updateAt) {
+
 		this.userId = userId;
 		this.username = username;
+		this.nickName = nickName;
 		this.password = password;
 		this.role = Role.User;
-		this.nickName = nickName;
 		this.birth = birth;
 		this.age = age;
 		this.gender = gender;
@@ -93,6 +96,7 @@ public class Users {
 	}
 
 	public Long getUserId() {
+
 		return userId;
 	}
 
@@ -106,6 +110,14 @@ public class Users {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickname) {
+		this.nickName = nickname;
 	}
 
 	public String getPassword() {
@@ -124,14 +136,6 @@ public class Users {
 		this.role = role;
 	}
 
-	public String getNickName() {
-		return nickName;
-	}
-
-	public void setNickName(String nickName) {
-		this.nickName = nickName;
-	}
-
 	public LocalDate getBirth() {
 		return birth;
 	}
@@ -146,6 +150,7 @@ public class Users {
 
 	public void setAge(Long age) {
 		this.age = age;
+
 	}
 
 	public Gender getGender() {
@@ -189,6 +194,7 @@ public class Users {
 	}
 
 	public Long getEmoLevel() {
+
 		return emoLevel;
 	}
 

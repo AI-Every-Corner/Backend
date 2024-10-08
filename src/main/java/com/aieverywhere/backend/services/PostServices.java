@@ -5,21 +5,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
+import com.aieverywhere.backend.models.Images;
 import com.aieverywhere.backend.models.Posts;
+import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageRepo;
 import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.PostSpecifications;
 import com.aieverywhere.backend.repostories.RelaRepo;
 import com.aieverywhere.backend.repostories.UserRepo;
+
+import jakarta.persistence.Query;
 
 @Service
 public class PostServices {
@@ -27,18 +34,34 @@ public class PostServices {
 	private final UserRepo userRepo;
 	private final ImageRepo imageRepo;
 	private final RelaRepo relaRepo;
+	private final ImagesServices imagesServices;
 
 	@Autowired
-	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo) {
+	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo, ImagesServices imagesServices) {
 		this.postRepo = postRepo;
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
 		this.relaRepo = relaRepo;
-
+		this.imagesServices = imagesServices;
 	}
 
-	public Posts createPost(Posts post) {
-		return postRepo.save(post);
+	public Posts createPost(Posts post, MultipartFile imageFile) {
+		try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = imagesServices.uploadImage(imageFile); // 使用已經存在的 ImagesServices 來保存圖片
+                Images image = new Images();
+                image.setImagePath(imageUrl);
+                image.setIsUploadByUser(true);
+                imagesServices.createImage(image);
+                post.setImgId(image.getImageId());
+            }
+            post.setCreatedAt(LocalDateTime.now());
+            post.setUpdatedAt(LocalDateTime.now());
+            return postRepo.save(post);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to store post: " + e.getMessage());
+        }
 	}
 
 	public Posts getPostByPostId(Long postId) {
@@ -62,15 +85,92 @@ public class PostServices {
 		postRepo.deleteByPostId(postId);
 
 	}
+	 
+//	public Map<String, Object> getPaginatedPosts(int page, int size) {
+//	    // Create the Pageable object with the requested page and size
+//	    Pageable pageable = PageRequest.of(page, size);
+//	
+//	    // Create the specification
+//	    Specification<Object[]> PostSpec = PostSpecifications.fetchPostDetails();
+//	
+//	    // Fetch paginated results from the repository
+////	    Page<Object[]> paginatedPosts = postRepo.findAllPageablePosts(PostSpec, pageable);
+//	    Page<Object[]> paginatedPosts = postRepo.findAll(PostSpec, pageable);
+//	    System.out.println(paginatedPosts);
+//	    
+//	    List<PostResponseDTO> postRes = new ArrayList<>();
+////		for (Object[] row : pageablePosts) {
+////			Long postId = ((Number) row[0]).longValue();
+////			String content = (String) row[1];
+////			String username = (String) row[2];
+////			String imagePath = (String) row[3];
+////			postRes.add(new PostResponseDTO(postId, content, username, imagePath));
+////		}
+//	
+//	    // Create the specification for cnt
+//	    Specification<Posts> CntSpec = PostSpecifications.countPosts();
+//	    Long totalItems = postRepo.count(CntSpec);
+//
+//		// Calculate total pages based on the total number of items and page size
+//		int totalPages = (int) Math.ceil((double) totalItems / size);
+//
+//		// Prepare response
+//		Map<String, Object> postMap = new HashMap<>();
+//		postMap.put("postRes", postRes);
+//		postMap.put("currentPage", page);
+//		postMap.put("totalItems", totalItems);
+//		postMap.put("totalPages", totalPages);
+//		
+//		return postMap;
+//	}
+	
+	public Map<String, Object> getAllPosts(int page, int size) {
+	    Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
+	    
+	    List<PostResponseDTO> postsList = new ArrayList<>();
+	    for (Posts post : postsPage) {
+	        Long postId = post.getPostId();
+	        String content = post.getContent();
 
-	public List<PostResponseDTO> getAllPosts(int page, int size) {
-		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
-		return postsPage.stream()
-				.map(post -> new PostResponseDTO(post.getPostId(), post.getContent(),
-						userRepo.findUsernameByUserId(post.getUserId()),
-						imageRepo.findImagePathByImageId(post.getImgId())))
-				.collect(Collectors.toList());
+	        // Fetch user information
+	        Users user = userRepo.findByUserId(post.getUserId());
+	        String nickname = null;
+	        if (user != null) {
+	            nickname = user.getNickName();
+	        } else {
+	            // Handle the case where the user is null
+	            System.err.println("User with ID " + post.getUserId() + " not found.");
+	            continue; // Skip this post if the user is not found
+	        }
+
+	        // Fetch image information
+	        Images image = imageRepo.findByImgId(post.getImgId());
+	        String imagePath = null;
+	        if (image != null) {
+	            imagePath = image.getImagePath();
+	        } else {
+	            System.err.println("Image with ID " + post.getImgId() + " not found.");
+	        }
+
+	        // Only add posts where both nickname and imagePath are available
+	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath));
+	    }
+
+	    Map<String, Object> postMap = new HashMap<>();
+	    postMap.put("postRes", postsList);
+	    postMap.put("currentPage", page);
+	    return postMap;
 	}
+
+
+//	public List<PostResponseDTO> getAllPosts(int page, int size) {
+//		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
+//		return postsPage.stream()
+//				.map(post -> new PostResponseDTO(post.getPostId(), post.getContent(),
+//						userRepo.findUsernameByUserId(post.getUserId()),
+//						imageRepo.findImagePathByImageId(post.getImgId())))
+//				.collect(Collectors.toList());
+//	}
 
 	// the userId is for find friend status and can show friends posts first
 	public List<Posts> getAllFriendPosts(Long userid) {

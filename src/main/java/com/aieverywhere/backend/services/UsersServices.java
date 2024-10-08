@@ -11,22 +11,25 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.models.Users;
+import com.aieverywhere.backend.repostories.ImageSpecifications;
 import com.aieverywhere.backend.repostories.UserRepo;
+import com.aieverywhere.backend.repostories.UserSpecifications;
 
 @Service
 public class UsersServices implements UserDetailsService {
 	private final UserRepo userRepo;
-	private BCryptPasswordEncoder passwordEncoder;
+	private BCryptPasswordEncoder passwordEncoder1;
 
 	@Autowired
 	public UsersServices(UserRepo userRepo) {
 		this.userRepo = userRepo;
-		this.passwordEncoder = new BCryptPasswordEncoder();
+		this.passwordEncoder1 = new BCryptPasswordEncoder();
+
 	}
 
 	public Users createUsers(Users user) {
 		// 加密密碼
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.setPassword(passwordEncoder1.encode(user.getPassword()));
 		return userRepo.save(user);
 	}
 
@@ -54,11 +57,37 @@ public class UsersServices implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found");
 		}
-		return passwordEncoder.matches(password, user.getPassword());
+		return passwordEncoder1.matches(password, user.getPassword());
 	}
 
 	public Users findByUsername(String username) {
 		return userRepo.findByUsername(username);
+	}
+
+	public Users findByUserId(Long userId) {
+		return userRepo.findByUserId(userId);
+	}
+
+	public Users updateUser(Long userId, Users updatedUser) {
+		// 查詢現有的使用者
+		Users existingUser = findByUserId(userId);
+		if (existingUser == null) {
+			throw new UsernameNotFoundException("User not found");
+		}
+
+		existingUser.setNickName(updatedUser.getNickName());
+		existingUser.setGender(updatedUser.getGender());
+		existingUser.setBirth(updatedUser.getBirth());
+		existingUser.setPhoneNum(updatedUser.getPhoneNum());
+		existingUser.setEmail(updatedUser.getEmail());
+
+		// 檢查是否有新密碼，如果有就進行加密並更新
+		if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+			String encryptedPassword = passwordEncoder1.encode(updatedUser.getPassword()); // 加密新密碼
+			existingUser.setPassword(encryptedPassword); // 更新加密後的密碼
+		}
+
+		return userRepo.save(existingUser);
 	}
 
 	public String updateUser(Users user) {
@@ -82,17 +111,24 @@ public class UsersServices implements UserDetailsService {
 				Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
 	}
 
-	public Users getUsersByUsersId(Long userId) {
-		return userRepo.findByUserId(userId);
-		
+	public Users getUsersByUsersId(Long userId) throws Exception{
+		try {
+			return userRepo.findOne(UserSpecifications.hasUserId(userId)).get();
+		}catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public Long getUsersCount() {
 		return userRepo.count();
 	}
+<<<<<<< HEAD
 	
 	public Users findByEmail(String email) {
 		return userRepo.findByEmail(email);
 	}
+=======
+>>>>>>> 5c2ccc8340cc389e96d55c46f80dc44b8534f504
 
 }

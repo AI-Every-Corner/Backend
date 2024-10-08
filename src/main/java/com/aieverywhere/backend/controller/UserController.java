@@ -13,7 +13,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,7 +86,7 @@ public class UserController {
 			newUser.setUpdateAt(LocalDateTime.now());
 
 			// 計算年齡
-			Long age = (long) Period.between(birthDate, LocalDate.now()).getYears();
+			long age = Period.between(birthDate, LocalDate.now()).getYears();
 			newUser.setAge(age);
 
 			// 保存用戶
@@ -135,4 +138,35 @@ public class UserController {
 		}
 	}
 
+	@GetMapping("/{userId}")
+	public ResponseEntity<Users> getUser(@PathVariable Long userId) {
+		try {
+	        Users user = usersServices.findByUserId(userId);
+	        if (user != null) {
+	            return ResponseEntity.ok(user);
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 找不到用戶
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 錯誤處理
+	    }
+	}
+
+	@PutMapping("/{userId}")
+	public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody Users updatedUser) {
+
+		try {
+			Users user = usersServices.updateUser(userId, updatedUser);
+			return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
+		} catch (RuntimeException e) {
+			// 捕捉到用戶不存在或其他問題時的異常
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在或更新失敗");
+		} catch (Exception e) {
+			// 捕捉任何其他的異常
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，更新失敗");
+		}
+
+	}
+
 }
+

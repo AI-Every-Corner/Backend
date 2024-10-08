@@ -2,13 +2,15 @@ package com.aieverywhere.backend.repostories;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.aieverywhere.backend.models.Posts;
 
 public interface PostRepo extends JpaRepository<Posts, Long>, JpaSpecificationExecutor<Posts> {
-	// List<Posts> findAllPostsByUserId(List<Long> userIds);
 
 	List<Posts> findAllPostsByUserIdIn(List<Long> userId);
 
@@ -19,5 +21,7 @@ public interface PostRepo extends JpaRepository<Posts, Long>, JpaSpecificationEx
 	boolean existsByPostId(int postId);
 
 	void deleteByPostId(int postId);
+
+//	Page<Object[]> findAllPageablePosts(Specification<Posts> spec, Pageable pageable);
 
 }
