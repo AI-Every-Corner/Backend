@@ -22,7 +22,7 @@ public class Users {
 	
 	private String username;
 	
-	private String nickname;
+	private String nickName;
 
 	private String password;
 
@@ -60,7 +60,7 @@ public class Users {
 		this.username = argUser.getUsername();
 		this.password = argUser.getPassword();
 		this.role = Role.User;
-		this.nickname = argUser.getNickName();
+		this.nickName = argUser.getNickName();
 		this.birth = argUser.getBirth();
 		this.age = argUser.getAge();
 		this.gender = argUser.getGender();
@@ -73,14 +73,14 @@ public class Users {
 		this.updateAt = argUser.getUpdateAt();
 	}
 
-	public Users(Long userId, String username, String password, Role role, String nickname, LocalDate birth,
+	public Users(Long userId, String username, String password, Role role, String nickName, LocalDate birth,
 			Long age, Gender gender,
 			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
 			LocalDateTime updateAt) {
 
 		this.userId = userId;
 		this.username = username;
-		this.nickname = nickname;
+		this.nickName = nickName;
 		this.password = password;
 		this.role = Role.User;
 		this.birth = birth;
@@ -113,11 +113,11 @@ public class Users {
 	}
 	
 	public String getNickName() {
-		return nickname;
+		return nickName;
 	}
 
 	public void setNickName(String nickname) {
-		this.nickname = nickname;
+		this.nickName = nickname;
 	}
 
 	public String getPassword() {
