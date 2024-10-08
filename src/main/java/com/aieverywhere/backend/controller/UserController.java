@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.aieverywhere.backend.config.JwtUtils;
 import com.aieverywhere.backend.dto.LoginResponse;
 import com.aieverywhere.backend.models.Users;
+import com.aieverywhere.backend.models.Users.Gender;
 import com.aieverywhere.backend.repostories.LoginRequest;
 import com.aieverywhere.backend.services.ImageService;
 import com.aieverywhere.backend.services.UsersServices;
@@ -50,7 +51,7 @@ public class UserController {
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestParam("image") MultipartFile file,
 			@RequestParam("username") String username, @RequestParam("password") String password,
-			@RequestParam("birth") String birth, @RequestParam("gender") String gender,
+			@RequestParam("birth") String birth, @RequestParam("gender") Gender gender,
 			@RequestParam("email") String email, @RequestParam("phoneNum") String phoneNum,
 			@RequestParam(value = "personality", required = false) String personality,
 			@RequestParam(value = "emoLevel", required = false) Integer emoLevel) {
@@ -76,7 +77,7 @@ public class UserController {
 			newUser.setRole(Users.Role.User);
 			LocalDate birthDate = LocalDate.parse(birth.toString());
 			newUser.setBirth(birthDate);
-			newUser.setGender(Users.Gender.valueOf(gender));
+			newUser.setGender(gender);
 			newUser.setEmail(email);
 			newUser.setPhoneNum(phoneNum);
 			newUser.setImagePath(imagePath);
@@ -116,13 +117,13 @@ public class UserController {
 
 			Authentication authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-			
+
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
 			String jwt = jwtUtils.generateToken(userDetails);
 
 			Users user = usersServices.findByUsername(loginRequest.getUsername());
-			LoginResponse response = new LoginResponse(jwt, user.getImagePath(),user.getUserId());
+			LoginResponse response = new LoginResponse(jwt, user.getImagePath(), user.getUserId());
 
 			System.out.println("用戶 " + loginRequest.getUsername() + " 登錄成功");
 			return ResponseEntity.status(200).body(response);
@@ -139,32 +140,52 @@ public class UserController {
 	@GetMapping("/{userId}")
 	public ResponseEntity<Users> getUser(@PathVariable Long userId) {
 		try {
-	        Users user = usersServices.findByUserId(userId);
-	        if (user != null) {
-	            return ResponseEntity.ok(user);
-	        } else {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 找不到用戶
-	        }
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 錯誤處理
-	    }
+			Users user = usersServices.findByUserId(userId);
+			if (user != null) {
+				return ResponseEntity.ok(user);
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 找不到用戶
+			}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 錯誤處理
+		}
 	}
 
 	@PutMapping("/{userId}")
-	public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody Users updatedUser) {
+	public ResponseEntity<?> updateUser(@PathVariable Long userId, 
+			@RequestParam("nickName") String nickName,
+            @RequestParam("gender") Gender gender,
+            @RequestParam("birth") LocalDate birth,
+            @RequestParam("phoneNum") String phoneNum,
+            @RequestParam("email") String email,
+            @RequestParam(value = "password", required = false) String password, 
+			@RequestParam(value = "image", required = false) MultipartFile file) {
 
 		try {
-			Users user = usersServices.updateUser(userId, updatedUser);
-			return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
-		} catch (RuntimeException e) {
-			// 捕捉到用戶不存在或其他問題時的異常
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在或更新失敗");
-		} catch (Exception e) {
-			// 捕捉任何其他的異常
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，更新失敗");
-		}
+	        // 組裝更新用戶的資料
+	        Users updatedUser = new Users();
+	        updatedUser.setNickName(nickName);
+            updatedUser.setGender(gender);
+            updatedUser.setBirth(birth);
+            updatedUser.setPhoneNum(phoneNum);
+            updatedUser.setEmail(email);
+            
+	        if (password != null && !password.isEmpty()) {
+	            updatedUser.setPassword(password); // 如果有新密碼，則設置
+	        }
+
+	        // 調用服務層來更新用戶資料
+	        Users user = usersServices.updateUser(userId, updatedUser, file);
+	        return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
+	    } catch (RuntimeException e) {
+	        // 捕捉用戶不存在或其他問題時的異常
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在或更新失敗");
+	    } catch (Exception e) {
+	        // 捕捉任何其他的異常
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，更新失敗");
+	    }
+		
 
 	}
 
 }
-
