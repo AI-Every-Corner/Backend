@@ -116,9 +116,10 @@ public class PostServices {
 	        }
 	        
 	        LocalDateTime updateAt = post.getUpdatedAt();
+	        String location = post.getLocation();
 
 	        // Only add posts where both nickname and imagePath are available
-	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt));
+	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location));
 	    }
 	    
 	    Long totalItems = postRepo.count();
