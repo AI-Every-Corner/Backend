@@ -123,5 +123,12 @@ public class UsersServices implements UserDetailsService {
 	public Long getUsersCount() {
 		return userRepo.count();
 	}
+<<<<<<< HEAD
+	
+	public Users findByEmail(String email) {
+		return userRepo.findByEmail(email);
+	}
+=======
+>>>>>>> 5c2ccc8340cc389e96d55c46f80dc44b8534f504
 
 }

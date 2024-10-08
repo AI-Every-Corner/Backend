@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import com.aieverywhere.backend.models.Posts;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.services.PostServices;
@@ -104,5 +107,19 @@ public class PostController {
 		}
 
 	}
+	@PostMapping("/createPost")
+	public ResponseEntity<?> createPost(
+		@RequestPart("post") Posts post,
+		@RequestPart(value = "image", required = false) MultipartFile imageFile
+	) {
+		try {
+			postServices.createPost(post, imageFile);
+			return ResponseEntity.status(201).body("Post created successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(500).body("Failed to create post: " + e.getMessage());
+		}
+	}
+
 	
 }
