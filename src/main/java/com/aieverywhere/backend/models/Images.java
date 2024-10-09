@@ -12,7 +12,7 @@ public class Images {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long imgId;
+	private Long imageId;
 	private String imagePath;
 	private String description;
 	private Boolean isUploadByUser;
@@ -23,9 +23,9 @@ public class Images {
 
 	}
 
-	public Images(Long imgId, String imagePath, String description, Boolean isUploadByUser, Boolean isAvatar,
+	public Images(Long imageId, String imagePath, String description, Boolean isUploadByUser, Boolean isAvatar,
 			Long useCount) {
-		this.imgId = imgId;
+		this.imageId = imageId;
 		this.imagePath = imagePath;
 		this.description = description;
 		this.isUploadByUser = isUploadByUser;
@@ -34,11 +34,11 @@ public class Images {
 	}
 
 	public Long getImageId() {
-		return imgId;
+		return imageId;
 	}
 
 	public void setImageId(Long imageId) {
-		this.imgId = imageId;
+		this.imageId = imageId;
 	}
 
 	public String getImagePath() {
