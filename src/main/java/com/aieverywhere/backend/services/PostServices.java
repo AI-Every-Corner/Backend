@@ -1,5 +1,6 @@
 package com.aieverywhere.backend.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,46 +86,8 @@ public class PostServices {
 		postRepo.deleteByPostId(postId);
 
 	}
-	 
-//	public Map<String, Object> getPaginatedPosts(int page, int size) {
-//	    // Create the Pageable object with the requested page and size
-//	    Pageable pageable = PageRequest.of(page, size);
-//	
-//	    // Create the specification
-//	    Specification<Object[]> PostSpec = PostSpecifications.fetchPostDetails();
-//	
-//	    // Fetch paginated results from the repository
-////	    Page<Object[]> paginatedPosts = postRepo.findAllPageablePosts(PostSpec, pageable);
-//	    Page<Object[]> paginatedPosts = postRepo.findAll(PostSpec, pageable);
-//	    System.out.println(paginatedPosts);
-//	    
-//	    List<PostResponseDTO> postRes = new ArrayList<>();
-////		for (Object[] row : pageablePosts) {
-////			Long postId = ((Number) row[0]).longValue();
-////			String content = (String) row[1];
-////			String username = (String) row[2];
-////			String imagePath = (String) row[3];
-////			postRes.add(new PostResponseDTO(postId, content, username, imagePath));
-////		}
-//	
-//	    // Create the specification for cnt
-//	    Specification<Posts> CntSpec = PostSpecifications.countPosts();
-//	    Long totalItems = postRepo.count(CntSpec);
-//
-//		// Calculate total pages based on the total number of items and page size
-//		int totalPages = (int) Math.ceil((double) totalItems / size);
-//
-//		// Prepare response
-//		Map<String, Object> postMap = new HashMap<>();
-//		postMap.put("postRes", postRes);
-//		postMap.put("currentPage", page);
-//		postMap.put("totalItems", totalItems);
-//		postMap.put("totalPages", totalPages);
-//		
-//		return postMap;
-//	}
 	
-	public Map<String, Object> getAllPosts(int page, int size) {
+	public Map<String, Object> getAllPagedPosts(int page, int size) {
 	    Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
 	    
 	    List<PostResponseDTO> postsList = new ArrayList<>();
@@ -151,26 +114,25 @@ public class PostServices {
 	        } else {
 	            System.err.println("Image with ID " + post.getImgId() + " not found.");
 	        }
+	        
+	        LocalDateTime updateAt = post.getUpdatedAt();
+	        String location = post.getLocation();
 
 	        // Only add posts where both nickname and imagePath are available
-	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath));
+	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location));
 	    }
+	    
+	    Long totalItems = postRepo.count();
+		int totalPages = (int) Math.ceil((double) totalItems / size);
 
 	    Map<String, Object> postMap = new HashMap<>();
-	    postMap.put("postRes", postsList);
+	    postMap.put("postsList", postsList);
 	    postMap.put("currentPage", page);
+		postMap.put("totalItems", totalItems);
+		postMap.put("totalPages", totalPages);
+		
 	    return postMap;
 	}
-
-
-//	public List<PostResponseDTO> getAllPosts(int page, int size) {
-//		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
-//		return postsPage.stream()
-//				.map(post -> new PostResponseDTO(post.getPostId(), post.getContent(),
-//						userRepo.findUsernameByUserId(post.getUserId()),
-//						imageRepo.findImagePathByImageId(post.getImgId())))
-//				.collect(Collectors.toList());
-//	}
 
 	// the userId is for find friend status and can show friends posts first
 	public List<Posts> getAllFriendPosts(Long userid) {
@@ -223,5 +185,29 @@ public class PostServices {
 		});
 		return resultMap ;
 	}
+	
+	 public List<PostResponseDTO> getPostsByUserId(Long userId) {
+	        // 查找所有該用戶的帖子
+	        List<Posts> postsList = postRepo.findAllByUserIdOrderByCreatedAtAsc(userId);
+
+	        List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
+	        for (Posts post : postsList) {
+	            Users user = userRepo.findByUserId(post.getUserId());
+	            Images image = imageRepo.findByImgId(post.getImgId());
+
+	            // 構建 PostResponseDTO，檢查 user 和 image 是否為 null
+	            if (user != null && image != null) {
+	                postResponseDTOList.add(new PostResponseDTO(
+	                    post.getPostId(),
+	                    post.getContent(),
+	                    user.getNickName(),
+	                    image.getImagePath(),
+						post.getUpdatedAt(),
+						post.getLocation()
+	                ));
+	            }
+	        }
+	        return postResponseDTOList;
+	    }
 
 }

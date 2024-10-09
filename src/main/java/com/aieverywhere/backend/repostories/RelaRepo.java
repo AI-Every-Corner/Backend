@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.aieverywhere.backend.models.Relationship;
+import com.aieverywhere.backend.models.Relationship.RelationshipStatus;
 import com.aieverywhere.backend.models.Users.Role;
 
 public interface RelaRepo extends JpaRepository<Relationship, Integer>, JpaSpecificationExecutor<Relationship> {
@@ -20,5 +21,7 @@ public interface RelaRepo extends JpaRepository<Relationship, Integer>, JpaSpeci
 	
     @Query("SELECT r FROM Relationship r JOIN Users u ON r.friendId = u.userId WHERE r.userId = :userId AND u.role = :role")
     List<Relationship> findAllByUserIdAndRole(@Param("userId") Long userId, @Param("role") Role role);
+
+    List<Relationship> findAllByUserIdAndRelationshipStatus(Long userId, RelationshipStatus status);
 
 }

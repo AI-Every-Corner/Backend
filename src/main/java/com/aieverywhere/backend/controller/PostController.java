@@ -36,11 +36,6 @@ public class PostController {
 		this.postServices = postServices;
 		this.entityManager = entityManager;
 	}
-	
-	@GetMapping("")
-	public ResponseEntity<?> test() {
-		return ResponseEntity.status(200).body("hello");
-	}
 
 	@GetMapping("posts")
 	public ResponseEntity<?> queryPage(@RequestParam(defaultValue = "0") int page,
@@ -92,13 +87,25 @@ public class PostController {
 //			postMap.put("totalPages", totalPages);
 
 			// Prepare response
-			Map<String, Object> postMap = postServices.getAllPosts(page, size);
+			Map<String, Object> postMap = postServices.getAllPagedPosts(page, size);
 			return ResponseEntity.status(200).body(postMap);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ResponseEntity.status(500).body("failed: " + e.getMessage());
 		}
+	}
+	
+	@GetMapping("posts/{userId}")
+	public ResponseEntity<?> getPostByUserId(@PathVariable Long userId){
+		try {
+            // 調用服務層的方法
+            List<PostResponseDTO> posts = postServices.getPostsByUserId(userId);
+            return ResponseEntity.status(200).body(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to retrieve posts: " + e.getMessage());
+        }
 	}
 
 	@PostMapping("yearReview/{userId}")
