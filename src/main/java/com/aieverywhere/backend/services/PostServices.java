@@ -117,6 +117,7 @@ public class PostServices {
 	        
 	        LocalDateTime updateAt = post.getUpdatedAt();
 	        String location = post.getLocation();
+	        Long userId = user.getUserId();
 
 	        // Only add posts where both nickname and imagePath are available
 	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location));
@@ -193,7 +194,8 @@ public class PostServices {
 	        List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
 	        for (Posts post : postsList) {
 	            Users user = userRepo.findByUserId(post.getUserId());
-	            Images image = imageRepo.findByImageId(post.getImgId());
+
+	            Images image = imageRepo.findByImgId(post.getImgId());
 
 	            // 構建 PostResponseDTO，檢查 user 和 image 是否為 null
 	            if (user != null && image != null) {
@@ -201,7 +203,9 @@ public class PostServices {
 	                    post.getPostId(),
 	                    post.getContent(),
 	                    user.getNickName(),
-	                    image.getImagePath()
+	                    image.getImagePath(),
+	                    post.getUpdatedAt(),
+	                    post.getLocation()
 	                ));
 	            }
 	        }

@@ -93,7 +93,7 @@ public class RelationshipServices {
                     friend.getUserId(),
                     friend.getNickName(),
                     friend.getImagePath(),
-                    relationship.getRelationshipId()
+                    relationship.getFriendId()
                 );
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
