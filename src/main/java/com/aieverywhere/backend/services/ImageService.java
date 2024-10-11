@@ -37,7 +37,7 @@ public class ImageService {
             file.transferTo(targetFile);
             
             // 回傳圖片的 URL
-            String imageUrl = "https://localhost:8080/images/" + fileName;
+            String imageUrl = "http://localhost:8080/images/" + fileName;
             System.out.println("File saved to: " + targetFile.getAbsolutePath());
             return imageUrl;
         } catch (IOException e) {
