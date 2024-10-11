@@ -54,7 +54,7 @@ public class PostServices {
                 image.setImagePath(imageUrl);
                 image.setIsUploadByUser(true);
                 imagesServices.createImage(image);
-                post.setImageId(image.getImageId());
+                post.setImgId(image.getImgId());
             }
             post.setCreatedAt(LocalDateTime.now());
             post.setUpdatedAt(LocalDateTime.now());
@@ -107,12 +107,12 @@ public class PostServices {
 	        }
 
 	        // Fetch image information
-	        Images image = imageRepo.findByImageId(post.getImageId());
+	        Images image = imageRepo.findByImgId(post.getImgId());
 	        String imagePath = null;
 	        if (image != null) {
 	            imagePath = image.getImagePath();
 	        } else {
-	            System.err.println("Image with ID " + post.getImageId() + " not found.");
+	            System.err.println("Image with ID " + post.getImgId() + " not found.");
 	        }
 	        
 	        LocalDateTime updateAt = post.getUpdatedAt();
@@ -195,7 +195,7 @@ public class PostServices {
 	        for (Posts post : postsList) {
 	            Users user = userRepo.findByUserId(post.getUserId());
 
-	            Images image = imageRepo.findByImageId(post.getImageId());
+	            Images image = imageRepo.findByImgId(post.getImgId());
 
 	            // 構建 PostResponseDTO，檢查 user 和 image 是否為 null
 	            if (user != null && image != null) {

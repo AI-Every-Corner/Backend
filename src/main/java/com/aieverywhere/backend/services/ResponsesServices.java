@@ -52,13 +52,13 @@ public class ResponsesServices {
     		
     		Users user = userRepo.getReferenceById(userId);
     		String nickname = user.getNickName();
-    		String imagePath = user.getImagePath();
+    		String imgPath = user.getImagePath();
     		
     		Long likes = resp.getLikes();
     		LocalDateTime createdAt = resp.getCreatedAt();
     		LocalDateTime updateAt = resp.getUpdateAt();
     		
-    		respList.add(new RespResponseDTO(responseId, postId, userId, content, nickname, imagePath, likes, createdAt, updateAt));
+    		respList.add(new RespResponseDTO(responseId, postId, userId, content, nickname, imgPath, likes, createdAt, updateAt));
     	}
     	
     	Long totalItems = respRepo.count();
