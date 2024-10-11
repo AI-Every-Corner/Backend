@@ -52,6 +52,7 @@ public class UserController {
 	// signup
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestParam("image") MultipartFile file,
+			@RequestParam("cover") MultipartFile coverFile,
 			@RequestParam("username") String username, @RequestParam("nickName") String nickName, 
 			@RequestParam("password") String password,
 			@RequestParam("birth") String birth, @RequestParam("gender") Gender gender,
@@ -72,7 +73,7 @@ public class UserController {
 
 			// 上傳圖片
 			String imagePath = imageService.uploadImage(file);
-
+			String coverPath = imageService.uploadImage(coverFile);
 			// 創建新用戶
 			Users newUser = new Users();
 			newUser.setUsername(username);
@@ -85,6 +86,7 @@ public class UserController {
 			newUser.setEmail(email);
 			newUser.setPhoneNum(phoneNum);
 			newUser.setImagePath(imagePath);
+			newUser.setCoverPath(coverPath);
 			newUser.setCreatedAt(LocalDateTime.now());
 			newUser.setUpdateAt(LocalDateTime.now());
 
@@ -127,7 +129,7 @@ public class UserController {
 			String jwt = jwtUtils.generateToken(userDetails);
 
 			Users user = usersServices.findByUsername(loginRequest.getUsername());
-			LoginResponse response = new LoginResponse(jwt, user.getImagePath(), user.getUserId());
+			LoginResponse response = new LoginResponse(jwt, user.getImagePath(), user.getUserId(), user.getCoverPath());
 
 			System.out.println("用戶 " + loginRequest.getUsername() + " 登錄成功");
 			return ResponseEntity.status(200).body(response);

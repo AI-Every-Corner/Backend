@@ -98,6 +98,8 @@ public class UsersServices implements UserDetailsService {
 	        try {
 	            String imagePath = imageService.uploadImage(file);
 	            existingUser.setImagePath(imagePath); // 更新圖片路徑
+				String coverPath = imageService.uploadImage(file);
+				existingUser.setCoverPath(coverPath);
 	        } catch (Exception e) {
 	            // 捕獲圖片上傳異常
 	            throw new RuntimeException("圖片上傳失敗: " + e.getMessage());
