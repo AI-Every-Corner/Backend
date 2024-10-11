@@ -165,7 +165,8 @@ public class UserController {
             @RequestParam("phoneNum") String phoneNum,
             @RequestParam("email") String email,
             @RequestParam(value = "password", required = false) String password, 
-			@RequestParam(value = "image", required = false) MultipartFile file) {
+			@RequestParam(value = "image", required = false) MultipartFile file,
+			@RequestParam(value = "cover", required = false) MultipartFile coverFile) {
 
 		try {
 	        // 組裝更新用戶的資料
@@ -181,7 +182,7 @@ public class UserController {
 	        }
 
 	        // 調用服務層來更新用戶資料
-	        Users user = usersServices.updateUser(userId, updatedUser, file);
+	        Users user = usersServices.updateUser(userId, updatedUser, file, coverFile);
 	        return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
 	    } catch (RuntimeException e) {
 	        // 捕捉用戶不存在或其他問題時的異常
