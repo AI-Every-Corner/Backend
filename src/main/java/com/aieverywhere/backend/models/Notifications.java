@@ -1,6 +1,5 @@
 package com.aieverywhere.backend.models;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,8 +23,7 @@ public class Notifications {
 
 	}
 
-	public Notifications(Long notificationId, Long userId, String contextType, Type type) {
-		this.notificationId = notificationId;
+	public Notifications(Long userId, String contextType, Type type) {
 		this.userId = userId;
 		this.contextType = contextType;
 		this.type = type;
@@ -75,5 +73,4 @@ public class Notifications {
 	public enum Type {
 		Post, Response, Like, AddFriend
 	}
-
 }
