@@ -195,15 +195,13 @@ public class PostServices {
 	        for (Posts post : postsList) {
 	            Users user = userRepo.findByUserId(post.getUserId());
 
-	            Images image = imageRepo.findByImgId(post.getImgId());
-
-	            // 構建 PostResponseDTO，檢查 user 和 image 是否為 null
-	            if (user != null && image != null) {
+	            // 構建 PostResponseDTO，檢查 user 是否為 null
+	            if (user != null) {
 	                postResponseDTOList.add(new PostResponseDTO(
 	                    post.getPostId(),
 	                    post.getContent(),
 	                    user.getNickName(),
-	                    image.getImagePath(),
+	                    user.getImagePath(),
 	                    post.getUpdatedAt(),
 	                    post.getLocation(),
 	                    user.getUserId()
