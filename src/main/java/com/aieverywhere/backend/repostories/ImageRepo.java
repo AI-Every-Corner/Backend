@@ -12,5 +12,5 @@ import java.util.List;
 
 
 public interface ImageRepo extends JpaRepository<Images, Long>, JpaSpecificationExecutor<Images> {
-	public Images findByImageId(Long imageId);
+	public Images findByImgId(Long imgId);
 }

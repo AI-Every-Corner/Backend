@@ -9,7 +9,7 @@ public class RespResponseDTO {
 	private Long userId;
 	private String content;
 	private String nickname = null;
-	private String imagePath = null;
+	private String imgPath = null;
 	private Long likes;
 	private LocalDateTime createdAt;
 	private LocalDateTime updateAt;
@@ -17,14 +17,14 @@ public class RespResponseDTO {
 	public RespResponseDTO() {
 	}
 
-	public RespResponseDTO(Long responseId, Long postId, Long userId, String content, String nickname, String imagePath,
+	public RespResponseDTO(Long responseId, Long postId, Long userId, String content, String nickname, String imgPath,
 			Long likes, LocalDateTime createdAt, LocalDateTime updateAt) {
 		this.responseId = responseId;
 		this.postId = postId;
 		this.userId = userId;
 		this.content = content;
 		this.nickname = nickname;
-		this.imagePath = imagePath;
+		this.imgPath = imgPath;
 		this.likes = likes;
 		this.createdAt = createdAt;
 		this.updateAt = updateAt;
@@ -70,12 +70,12 @@ public class RespResponseDTO {
 		this.nickname = nickname;
 	}
 
-	public String getImagePath() {
-		return imagePath;
+	public String getImgPath() {
+		return imgPath;
 	}
 
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
+	public void setImgPath(String imagePath) {
+		this.imgPath = imagePath;
 	}
 
 	public Long getLikes() {
