@@ -11,13 +11,14 @@ public class PostResponseDTO {
 	private LocalDateTime updateAt = null;
 	private String location = null;
 	private Long userId = 0L;
+	private Long likes = 0L;
 
 	// Constructors
 	public PostResponseDTO() {
 	}
-	
+
 	public PostResponseDTO(Long postId, String content, String nickname, String imagePath, LocalDateTime updateAt,
-			String location, Long userId) {
+			String location, Long userId, Long likes) {
 		super();
 		this.postId = postId;
 		this.content = content;
@@ -26,6 +27,7 @@ public class PostResponseDTO {
 		this.updateAt = updateAt;
 		this.location = location;
 		this.userId = userId;
+		this.likes = likes;
 	}
 
 	// Getters and Setters
@@ -83,5 +85,13 @@ public class PostResponseDTO {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public Long getLikes() {
+		return likes;
+	}
+
+	public void setLikes(Long likes) {
+		this.likes = likes;
 	}
 }

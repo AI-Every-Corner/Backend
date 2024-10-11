@@ -19,9 +19,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.models.Images;
+import com.aieverywhere.backend.models.Likes;
 import com.aieverywhere.backend.models.Posts;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageRepo;
+import com.aieverywhere.backend.repostories.LikeRepo;
+import com.aieverywhere.backend.repostories.LikeSpecifications;
 import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.PostSpecifications;
 import com.aieverywhere.backend.repostories.RelaRepo;
@@ -38,7 +41,8 @@ public class PostServices {
 	private final ImagesServices imagesServices;
 
 	@Autowired
-	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo, ImagesServices imagesServices) {
+	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo, LikeRepo likeRepo,
+			ImagesServices imagesServices) {
 		this.postRepo = postRepo;
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
@@ -107,7 +111,7 @@ public class PostServices {
 	        }
 
 	        // Fetch image information
-	        Images image = imageRepo.findByImgId(post.getImgId());
+	        Images image = imageRepo.getReferenceById(post.getImgId());
 	        String imagePath = null;
 	        if (image != null) {
 	            imagePath = image.getImagePath();
@@ -118,9 +122,10 @@ public class PostServices {
 	        LocalDateTime updateAt = post.getUpdatedAt();
 	        String location = post.getLocation();
 	        Long userId = user.getUserId();
+	        Long likes = post.getLikes();
 
 	        // Only add posts where both nickname and imagePath are available
-	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location, userId));
+	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location, userId, likes));
 	    }
 	    
 	    Long totalItems = postRepo.count();
@@ -194,17 +199,20 @@ public class PostServices {
 	        List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
 	        for (Posts post : postsList) {
 	            Users user = userRepo.findByUserId(post.getUserId());
-
+	            
+	            Images image = imageRepo.getReferenceById(post.getImgId());
+	            
 	            // 構建 PostResponseDTO，檢查 user 是否為 null
 	            if (user != null) {
 	                postResponseDTOList.add(new PostResponseDTO(
 	                    post.getPostId(),
 	                    post.getContent(),
 	                    user.getNickName(),
-	                    user.getImagePath(),
+	                    image.getImagePath(),
 	                    post.getUpdatedAt(),
 	                    post.getLocation(),
-	                    user.getUserId()
+	                    user.getUserId(),
+	                    post.getLikes()
 	                ));
 	            }
 	        }
