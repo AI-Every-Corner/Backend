@@ -52,7 +52,7 @@ public class ImagesServices {
 			file.transferTo(new File("C:\\Users\\user\\Desktop\\AI-every-coner\\picture"
 					+ fileName + suffix));
 			// 回傳圖片的 URL
-			String imageUrl = "/images/products/" + fileName + suffix;
+			String imageUrl = "http://localhost:8080/images/products/" + fileName + suffix;
 			return imageUrl;
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -23,9 +23,9 @@ public class Images {
 
 	}
 
-	public Images(Long imgId, String imagePath, String description, Boolean isUploadByUser, Boolean isAvatar,
+	public Images(Long imageId, String imagePath, String description, Boolean isUploadByUser, Boolean isAvatar,
 			Long useCount) {
-		this.imgId = imgId;
+		this.imgId = imageId;
 		this.imagePath = imagePath;
 		this.description = description;
 		this.isUploadByUser = isUploadByUser;
@@ -33,11 +33,11 @@ public class Images {
 		this.useCount = useCount;
 	}
 
-	public Long getImageId() {
+	public Long getImgId() {
 		return imgId;
 	}
 
-	public void setImageId(Long imageId) {
+	public void setImgId(Long imageId) {
 		this.imgId = imageId;
 	}
 

@@ -54,7 +54,7 @@ public class PostServices {
                 image.setImagePath(imageUrl);
                 image.setIsUploadByUser(true);
                 imagesServices.createImage(image);
-                post.setImgId(image.getImageId());
+                post.setImgId(image.getImgId());
             }
             post.setCreatedAt(LocalDateTime.now());
             post.setUpdatedAt(LocalDateTime.now());
@@ -117,9 +117,10 @@ public class PostServices {
 	        
 	        LocalDateTime updateAt = post.getUpdatedAt();
 	        String location = post.getLocation();
+	        Long userId = user.getUserId();
 
 	        // Only add posts where both nickname and imagePath are available
-	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location));
+	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location, userId));
 	    }
 	    
 	    Long totalItems = postRepo.count();
@@ -193,15 +194,17 @@ public class PostServices {
 	        List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
 	        for (Posts post : postsList) {
 	            Users user = userRepo.findByUserId(post.getUserId());
-	            Images image = imageRepo.findByImageId(post.getImgId());
 
-	            // 構建 PostResponseDTO，檢查 user 和 image 是否為 null
-	            if (user != null && image != null) {
+	            // 構建 PostResponseDTO，檢查 user 是否為 null
+	            if (user != null) {
 	                postResponseDTOList.add(new PostResponseDTO(
 	                    post.getPostId(),
 	                    post.getContent(),
 	                    user.getNickName(),
-	                    image.getImagePath()
+	                    user.getImagePath(),
+	                    post.getUpdatedAt(),
+	                    post.getLocation(),
+	                    user.getUserId()
 	                ));
 	            }
 	        }
