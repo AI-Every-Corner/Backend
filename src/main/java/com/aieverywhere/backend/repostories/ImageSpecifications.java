@@ -13,8 +13,8 @@ public class ImageSpecifications {
 	
 	@Autowired ImageRepo imageRepo;
 
-    public static Specification<Images> hasImageId(Long imageId) {
+    public static Specification<Images> hasImageId(Long imgId) {
         return (root, query, criteriaBuilder) -> 
-            criteriaBuilder.equal(root.get("imageId"), imageId);
+            criteriaBuilder.equal(root.get("imgId"), imgId);
     }
 }

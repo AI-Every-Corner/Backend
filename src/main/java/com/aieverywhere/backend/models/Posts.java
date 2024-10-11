@@ -34,11 +34,11 @@ public class Posts {
 
 	}
 
-	public Posts(Long postId, Long userId, Long imgId, String content, String moodTag, Long moodScore, Long likes,
+	public Posts(Long postId, Long userId, Long imageId, String content, String moodTag, Long moodScore, Long likes,
 			LocalDateTime createdAt, LocalDateTime updatedAt, String location) {
 		this.postId = postId;
 		this.userId = userId;
-		this.imgId = imgId;
+		this.imgId = imageId;
 		this.content = content;
 		this.moodTag = moodTag;
 		this.moodScore = moodScore;
@@ -68,8 +68,8 @@ public class Posts {
 		return imgId;
 	}
 
-	public void setImgId(Long imgId) {
-		this.imgId = imgId;
+	public void setImgId(Long imageId) {
+		this.imgId = imageId;
 	}
 
 	public String getContent() {
