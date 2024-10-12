@@ -2,9 +2,6 @@ package com.aieverywhere.backend.repostories;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -22,6 +19,9 @@ public interface PostRepo extends JpaRepository<Posts, Long>, JpaSpecificationEx
 
 	void deleteByPostId(int postId);
 
-//	Page<Object[]> findAllPageablePosts(Specification<Posts> spec, Pageable pageable);
+	List<Posts> findByContentContainingIgnoreCase(String searchContent);
+
+	// Page<Object[]> findAllPageablePosts(Specification<Posts> spec, Pageable
+	// pageable);
 
 }
