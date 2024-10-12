@@ -1,8 +1,10 @@
 package com.aieverywhere.backend.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.aieverywhere.backend.models.Images;
 import com.aieverywhere.backend.models.Posts;
 import com.aieverywhere.backend.models.Relationship;
 import com.aieverywhere.backend.models.Responses;
@@ -36,17 +39,19 @@ public class GeminiService {
 	private UsersServices usersServices;
 	private LikesServices likesServices;
 	private ResponsesServices responsesServices;
+	private ImagesServices imagesService;
 
 	@Autowired
 	public GeminiService(RestTemplate restTemplate, PostServices postServices,
 			RelationshipServices relationshipServices, UsersServices usersServices, LikesServices likesServices,
-			ResponsesServices responsesServices) {
+			ResponsesServices responsesServices, ImagesServices imagesService) {
 		this.restTemplate = restTemplate;
 		this.postServices = postServices;
 		this.relationshipServices = relationshipServices;
 		this.usersServices = usersServices;
 		this.likesServices = likesServices;
 		this.responsesServices = responsesServices;
+		this.imagesService = imagesService;
 	}
 
 	private final String API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=%s";
@@ -314,6 +319,119 @@ public class GeminiService {
 			System.err.println("Error response: " + e.getResponseBodyAsString());
 			throw new RuntimeException("API call failed: " + e.getMessage());
 		}
+	}
+
+	// first get a random ai
+	// second get a rondom picture where is not load by user
+	// third send the picture discription and ai informatiom to gemini
+	// get the respond and fill the post object
+	// and save to the post
+	// this is for ai to create a post
+	public String aiCreatePost() throws Exception {
+		// get random ai user
+		Random random = new Random();
+		Users aiUser = null;
+		Long usercount = usersServices.getUsersCount();
+		boolean check = true;
+		while (check) {
+			aiUser = usersServices.getUsersByUsersId(random.nextLong(usercount) + 1);
+			if (aiUser.getRole().equals(Role.Ai)) {
+				check = false;
+			}
+		}
+		// get a rondom picture from db and pick use count is below average
+		Long countSum = imagesService.getUseCountSumNotUserUpload();
+		Long picSum = imagesService.getPicUseByAi();
+		Double averUseCount = (countSum.doubleValue() / picSum.doubleValue());
+		Long imageCount = imagesService.getPicCount();
+		Images image = null;
+		check = true;
+		while (check) {
+			image = imagesService.findImageById(random.nextLong(imageCount) + 1);
+			if (!image.getIsUploadByUser() && image.getUseCount().doubleValue() < averUseCount) {
+				check = false;
+			}
+		}
+
+		String context = "i will give you a description of a image here is the description " + image.getDescription()
+				+ " assume you are a user on a soical platform and you are going to use the image to post a post "
+				+ " (imagine the image with the description) and your personality is "
+				+ aiUser.getPersonality() + " and your emotion level is " + aiUser.getEmoLevel()
+				+ "your gender is " + aiUser.getGender()
+				+ " your birthday is at " + aiUser.getBirth().toString()
+				+ " if today is near your birthday 40% chance that you can respond that is related to your birthday "
+				+ " at the start of of the respond give me a word as moodtag that represent your feeling when you post the post "
+				+ " and select a number 1~10 to tell other how strong the felling is and then is the context that your are gpoing to post"
+				+ "just give me moodtag(a word) and a number and context you gonna post ,Please follow this specification exactly "
+				+ " like this \"happy 5 what a beautiful day! maybe be a bird will be happier!\""
+				+ "please dant have * or other kinf of symbol";
+
+		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + apiKey); // Include your API key
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode requestBodyNode = objectMapper.createObjectNode();
+
+		ArrayNode contentsArray = objectMapper.createArrayNode();
+		ObjectNode contentNode = objectMapper.createObjectNode();
+		ArrayNode partsArray = objectMapper.createArrayNode();
+
+		ObjectNode partNode = objectMapper.createObjectNode();
+
+		partNode.put("text", context); // Only include the text prompt
+
+		partsArray.add(partNode);
+		contentNode.set("parts", partsArray);
+		contentsArray.add(contentNode);
+
+		requestBodyNode.set("contents", contentsArray);
+
+		String requestBody;
+
+		try {
+			requestBody = objectMapper.writeValueAsString(requestBodyNode);
+			System.out.println(requestBody);
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to construct JSON request body", e);
+		}
+
+		HttpEntity<String> request = new HttpEntity<>(requestBody);
+		System.out.println("Request Body: " + request.toString());
+
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
+
+			String responseBody = response.getBody();
+			if (responseBody == null) {
+				throw new RuntimeException("Received empty response from API");
+			}
+
+			String respondFromGemini = extractTextFromRespond(responseBody);
+			System.out.println(respondFromGemini);
+			String[] words = respondFromGemini.split(" ");
+			String result = Arrays.stream(words).skip(2).collect(Collectors.joining(" "));
+			System.out.println(result);
+			Posts post = new Posts();
+			post.setUserId(aiUser.getUserId());
+			post.setContent(result);
+			post.setImgId(image.getImgId());
+			post.setLikes(0L);
+			post.setLocation("paradise");
+			post.setMoodScore(Long.parseLong(respondFromGemini.split(" ")[1]));
+			post.setMoodTag(respondFromGemini.split(" ")[0]);
+			// postServices.createPost(post, null);
+
+			return respondFromGemini;
+		} catch (HttpClientErrorException e) {
+			// Log the error response for debugging
+			System.err.println("Error response: " + e.getResponseBodyAsString());
+			throw new RuntimeException("API call failed: " + e.getMessage());
+		}
+
 	}
 
 	// is use for extract the respond that gemini return
