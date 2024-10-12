@@ -13,6 +13,7 @@ import com.aieverywhere.backend.models.Relationship.RelationshipStatus;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.models.Users.Role;
 import com.aieverywhere.backend.repostories.RelaRepo;
+
 @Service
 public class RelationshipServices {
 	private final RelaRepo relaRepo;
@@ -26,7 +27,7 @@ public class RelationshipServices {
 	}
 
 	// create follow relationship
-	public String createFollowRelationship(Relationship relationship){
+	public String createFollowRelationship(Relationship relationship) {
 		relaRepo.save(relationship);
 		return "create success";
 	}
@@ -65,29 +66,29 @@ public class RelationshipServices {
 		}
 	}
 
-	public List<FriendsDTO> getFriendesList(Long userId){
+	public List<FriendsDTO> getFriendesList(Long userId) {
 
 		// get all user friends relationship
-		List<Relationship> relationships = relaRepo.findAllByUserIdAndRelationshipStatus(userId, RelationshipStatus.Friend);
+		List<Relationship> relationships = relaRepo.findAllByUserIdAndRelationshipStatus(userId,
+				RelationshipStatus.Friend);
 
 		// get all user friends information
 		return relationships.stream()
-            .map(relationship -> {
-				try {
-					Users friend = usersServices.getUsersByUsersId(relationship.getFriendId());
-					return new FriendsDTO(
-                    friend.getUserId(),
-                    friend.getNickName(),
-                    friend.getImagePath(),
-                    relationship.getFriendId()
-                );
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return null;
-				}
-                
-            })
-            .collect(Collectors.toList());
+				.map(relationship -> {
+					try {
+						Users friend = usersServices.getUsersByUsersId(relationship.getFriendId());
+						return new FriendsDTO(
+								friend.getUserId(),
+								friend.getNickName(),
+								friend.getImagePath(),
+								relationship.getFriendId());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return null;
+					}
+
+				})
+				.collect(Collectors.toList());
 	}
 }

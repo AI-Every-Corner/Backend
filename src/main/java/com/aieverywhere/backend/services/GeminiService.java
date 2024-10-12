@@ -334,7 +334,7 @@ public class GeminiService {
 		Long usercount = usersServices.getUsersCount();
 		boolean check = true;
 		while (check) {
-			aiUser = usersServices.getUsersByUsersId(random.nextLong(usercount) + 1);
+			aiUser = usersServices.getAiUsersByUsersId(random.nextLong(usercount) + 1);
 			if (aiUser.getRole().equals(Role.Ai)) {
 				check = false;
 			}
