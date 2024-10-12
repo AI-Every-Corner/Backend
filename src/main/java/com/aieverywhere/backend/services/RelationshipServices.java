@@ -36,6 +36,12 @@ public class RelationshipServices {
 		return "create success";
 	}
 
+	// create follow relationship
+	public String createFollowRelationship(Relationship relationship){
+		relaRepo.save(relationship);
+		return "create success";
+	}
+
 	// get all user friends relationship
 	public List<Relationship> getAllUserFriends(Long UserId) {
 		List<Relationship> allFriends = relaRepo.findAllByUserId(UserId);
@@ -55,9 +61,20 @@ public class RelationshipServices {
 		Long relaId = relaRepo.findRelationshipIdByUserIdAndFriendId(relationship.getUserId(),
 				relationship.getFriendId());
 		relaRepo.deleteByRelationshipId(relaId);
-		relaRepo.deleteByRelationshipId(relaId + 1);
-
+		//relaRepo.deleteByRelationshipId(relaId + 1);
+		if (relaId != null) {
+			relaRepo.deleteByRelationshipId(relaId);
+		}
 	}
+
+	public void deleteRelationship(Long userId, Long friendId) {
+        Long relationship = relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId);
+        if (relationship != null) {
+            relaRepo.deleteByRelationshipId(relationship);
+        } else {
+            throw new RuntimeException("關係不存在");
+        }
+    }
 
 	// update two relationship for user and friend at same time
 	public String updateRelationship(Relationship relationship) {
@@ -73,6 +90,16 @@ public class RelationshipServices {
 	public Boolean checkRelationship(Long userId, Long friendId) {
 		System.out.println(userId+" "+friendId);
 		if (relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId) != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	
+	public Boolean checkFollowRelationship(Long userId, Long friendId){
+		if (relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId) != null) {
+			System.out.println("Following");
 			return true;
 		} else {
 			return false;
