@@ -96,7 +96,7 @@ public class UsersServices implements UserDetailsService {
 		// 如果有上傳封面圖片，則更新封面圖片路徑
 		if (coverFile != null && !coverFile.isEmpty()) {
 			try {
-				String coverPath = imageService.uploadImage(coverFile);
+				String coverPath = imagesServices.uploadImage(coverFile);
 				existingUser.setCoverPath(coverPath);
 			} catch (Exception e) {
 				throw new RuntimeException("封面圖片上傳失敗: " + e.getMessage());

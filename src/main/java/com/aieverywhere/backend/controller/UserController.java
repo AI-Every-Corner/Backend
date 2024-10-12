@@ -29,7 +29,7 @@ import com.aieverywhere.backend.dto.LoginResponse;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.models.Users.Gender;
 import com.aieverywhere.backend.repostories.LoginRequest;
-import com.aieverywhere.backend.services.ImageService;
+import com.aieverywhere.backend.services.ImagesServices;
 import com.aieverywhere.backend.services.UsersServices;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -47,7 +47,7 @@ public class UserController {
 	private UsersServices usersServices;
 
 	@Autowired
-	private ImageService imageService;
+	private ImagesServices imagesServices;
 
 	// signup
 	@PostMapping("/signup")
@@ -72,8 +72,8 @@ public class UserController {
 			}
 
 			// 上傳圖片
-			String imagePath = imageService.uploadImage(file);
-			String coverPath = imageService.uploadImage(coverFile);
+			String imagePath = imagesServices.uploadImage(file);
+			String coverPath = imagesServices.uploadImage(coverFile);
 			// 創建新用戶
 			Users newUser = new Users();
 			newUser.setUsername(username);
