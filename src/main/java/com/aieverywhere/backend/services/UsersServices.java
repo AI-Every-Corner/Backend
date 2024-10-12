@@ -136,6 +136,10 @@ public class UsersServices implements UserDetailsService {
 		}
 	}
 
+	public Users getAiUsersByUsersId(Long userId) throws Exception {
+		return userRepo.findByUserId(userId);
+	}
+
 	public Long getUsersCount() {
 		return userRepo.count();
 	}
