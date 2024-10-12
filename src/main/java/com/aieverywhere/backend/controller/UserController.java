@@ -52,7 +52,8 @@ public class UserController {
 	// signup
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestParam("image") MultipartFile file,
-			@RequestParam("username") String username, @RequestParam("nickName") String nickName,
+			@RequestParam("cover") MultipartFile coverFile,
+			@RequestParam("username") String username, @RequestParam("nickName") String nickName, 
 			@RequestParam("password") String password,
 			@RequestParam("birth") String birth, @RequestParam("gender") Gender gender,
 			@RequestParam("email") String email, @RequestParam("phoneNum") String phoneNum,
@@ -71,8 +72,8 @@ public class UserController {
 			}
 
 			// 上傳圖片
-			String imagePath = imagesServices.uploadImage(file);
-
+			String imagePath = imageService.uploadImage(file);
+			String coverPath = imageService.uploadImage(coverFile);
 			// 創建新用戶
 			Users newUser = new Users();
 			newUser.setUsername(username);
@@ -85,6 +86,7 @@ public class UserController {
 			newUser.setEmail(email);
 			newUser.setPhoneNum(phoneNum);
 			newUser.setImagePath(imagePath);
+			newUser.setCoverPath(coverPath);
 			newUser.setCreatedAt(LocalDateTime.now());
 			newUser.setUpdateAt(LocalDateTime.now());
 
@@ -127,7 +129,7 @@ public class UserController {
 			String jwt = jwtUtils.generateToken(userDetails);
 
 			Users user = usersServices.findByUsername(loginRequest.getUsername());
-			LoginResponse response = new LoginResponse(jwt, user.getImagePath(), user.getUserId());
+			LoginResponse response = new LoginResponse(jwt, user.getImagePath(), user.getUserId(), user.getCoverPath());
 
 			System.out.println("用戶 " + loginRequest.getUsername() + " 登錄成功");
 			return ResponseEntity.status(200).body(response);
@@ -158,12 +160,13 @@ public class UserController {
 	@PutMapping("/{userId}")
 	public ResponseEntity<?> updateUser(@PathVariable Long userId,
 			@RequestParam("nickName") String nickName,
-			@RequestParam("gender") Gender gender,
-			@RequestParam("birth") LocalDate birth,
-			@RequestParam("phoneNum") String phoneNum,
-			@RequestParam("email") String email,
-			@RequestParam(value = "password", required = false) String password,
-			@RequestParam(value = "image", required = false) MultipartFile file) {
+            @RequestParam("gender") Gender gender,
+            @RequestParam("birth") LocalDate birth,
+            @RequestParam("phoneNum") String phoneNum,
+            @RequestParam("email") String email,
+            @RequestParam(value = "password", required = false) String password, 
+			@RequestParam(value = "image", required = false) MultipartFile file,
+			@RequestParam(value = "cover", required = false) MultipartFile coverFile) {
 
 		try {
 			// 組裝更新用戶的資料
@@ -178,16 +181,17 @@ public class UserController {
 				updatedUser.setPassword(password); // 如果有新密碼，則設置
 			}
 
-			// 調用服務層來更新用戶資料
-			Users user = usersServices.updateUser(userId, updatedUser, file);
-			return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
-		} catch (RuntimeException e) {
-			// 捕捉用戶不存在或其他問題時的異常
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在或更新失敗");
-		} catch (Exception e) {
-			// 捕捉任何其他的異常
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，更新失敗");
-		}
+	        // 調用服務層來更新用戶資料
+	        Users user = usersServices.updateUser(userId, updatedUser, file, coverFile);
+	        return ResponseEntity.ok(user); // 更新成功，返回更新後的用戶資料
+	    } catch (RuntimeException e) {
+	        // 捕捉用戶不存在或其他問題時的異常
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在或更新失敗");
+	    } catch (Exception e) {
+	        // 捕捉任何其他的異常
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，更新失敗");
+	    }
+		
 
 	}
 

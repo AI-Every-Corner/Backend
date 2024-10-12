@@ -61,7 +61,7 @@ public class UsersServices implements UserDetailsService {
 		return userRepo.findByUserId(userId);
 	}
 
-	public Users updateUser(Long userId, Users updatedUser, MultipartFile file) {
+	public Users updateUser(Long userId, Users updatedUser, MultipartFile file, MultipartFile coverFile) {
 		System.out.println("in update");
 		// 查詢現有的使用者
 		Users existingUser = findByUserId(userId);
@@ -90,6 +90,16 @@ public class UsersServices implements UserDetailsService {
 			} catch (Exception e) {
 				// 捕獲圖片上傳異常
 				throw new RuntimeException("圖片上傳失敗: " + e.getMessage());
+			}
+		}
+
+		// 如果有上傳封面圖片，則更新封面圖片路徑
+		if (coverFile != null && !coverFile.isEmpty()) {
+			try {
+				String coverPath = imageService.uploadImage(coverFile);
+				existingUser.setCoverPath(coverPath);
+			} catch (Exception e) {
+				throw new RuntimeException("封面圖片上傳失敗: " + e.getMessage());
 			}
 		}
 
