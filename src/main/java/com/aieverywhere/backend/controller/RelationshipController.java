@@ -61,7 +61,7 @@ public class RelationshipController {
     @DeleteMapping("/{userId}/unfollow/{friendId}")
     public ResponseEntity<String> unfollow(@PathVariable Long userId, @PathVariable Long friendId) {
         if (relationshipServices.checkFollowRelationship(userId, friendId)) {
-            relationshipServices.deleteRelationship(new Relationship(null, userId, friendId, null));
+            relationshipServices.deleteRelationship(userId, friendId);
             return ResponseEntity.ok("Unfollowed successfully");
         } else {
             return ResponseEntity.badRequest().body("Not following this user");

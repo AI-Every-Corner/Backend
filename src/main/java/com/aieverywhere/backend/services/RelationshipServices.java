@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.aieverywhere.backend.dto.FriendsDTO;
 import com.aieverywhere.backend.models.Relationship;
@@ -18,22 +19,10 @@ public class RelationshipServices {
 
 	@Autowired
 	private UsersServices usersServices;
+
 	@Autowired
 	public RelationshipServices(RelaRepo relaRepo) {
 		this.relaRepo = relaRepo;
-	}
-
-	// create two relationship for user and friend at same time
-	public String createRelationship(Relationship relationship) {
-		// a friend b mean b friend a
-		relaRepo.save(relationship);
-		Long relaId = relaRepo.findRelationshipIdByUserIdAndFriendId(relationship.getUserId(),
-				relationship.getFriendId());
-
-		Relationship createforfriend = new Relationship(relaId + 1, relationship.getFriendId(),
-				relationship.getUserId(), relationship.getRelationshipStatus());
-		relaRepo.save(createforfriend);
-		return "create success";
 	}
 
 	// create follow relationship
@@ -56,17 +45,7 @@ public class RelationshipServices {
 		return allFriendsWithRole;
 	}
 
-	// delete two relationship for user and friend at same time
-	public void deleteRelationship(Relationship relationship) {
-		Long relaId = relaRepo.findRelationshipIdByUserIdAndFriendId(relationship.getUserId(),
-				relationship.getFriendId());
-		relaRepo.deleteByRelationshipId(relaId);
-		//relaRepo.deleteByRelationshipId(relaId + 1);
-		if (relaId != null) {
-			relaRepo.deleteByRelationshipId(relaId);
-		}
-	}
-
+	@Transactional
 	public void deleteRelationship(Long userId, Long friendId) {
         Long relationship = relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId);
         if (relationship != null) {
@@ -75,27 +54,7 @@ public class RelationshipServices {
             throw new RuntimeException("關係不存在");
         }
     }
-
-	// update two relationship for user and friend at same time
-	public String updateRelationship(Relationship relationship) {
-		Long relaId = relaRepo.findRelationshipIdByUserIdAndFriendId(relationship.getUserId(),
-				relationship.getFriendId());
-		Relationship createforfriend = new Relationship(relaId + 1, relationship.getFriendId(),
-				relationship.getUserId(), relationship.getRelationshipStatus());
-		relaRepo.save(createforfriend);
-		return "update success";
-	}
-
-	// check relationship
-	public Boolean checkRelationship(Long userId, Long friendId) {
-		System.out.println(userId+" "+friendId);
-		if (relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId) != null) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
+	
 	
 	public Boolean checkFollowRelationship(Long userId, Long friendId){
 		if (relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId) != null) {
