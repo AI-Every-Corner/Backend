@@ -198,7 +198,7 @@ public class GeminiService {
 			}
 			List<Boolean> allUserRelationship = new ArrayList<>();
 			for (Users user : allRespondUser) {
-				allUserRelationship.add(relationshipServices.checkRelationship(user.getUserId(), aiUser.getUserId()));
+				allUserRelationship.add(relationshipServices.checkFollowRelationship(user.getUserId(), aiUser.getUserId()));
 			}
 
 			String allRespondUserRelationship = "those are responses of the post ";
@@ -234,7 +234,7 @@ public class GeminiService {
 			}
 			List<Boolean> allUserRelationship = new ArrayList<>();
 			for (Users user : allRespondUser) {
-				allUserRelationship.add(relationshipServices.checkRelationship(user.getUserId(), aiUser.getUserId()));
+				allUserRelationship.add(relationshipServices.checkFollowRelationship(user.getUserId(), aiUser.getUserId()));
 			}
 
 			String allRespondUserRelationship = "those are responses of the post ";
@@ -418,7 +418,7 @@ public class GeminiService {
 			Posts post = new Posts();
 			post.setUserId(aiUser.getUserId());
 			post.setContent(result);
-			post.setImgId(image.getImgId());
+			post.setImageId(image.getImageId());
 			post.setLikes(0L);
 			post.setLocation("paradise");
 			post.setMoodScore(Long.parseLong(respondFromGemini.split(" ")[1]));

@@ -32,12 +32,12 @@ public class PostSpecifications {
 		};
 	}
 
-	public static Specification<Posts> hasImageId(Long imgId) {
+	public static Specification<Posts> hasImageId(Long imageId) {
 		return (root, query, criteriaBuilder) -> {
-			if (imgId == null) {
+			if (imageId == null) {
 				return criteriaBuilder.conjunction(); // 返回一个总是为真的 Predicate
 			}
-			return criteriaBuilder.equal(root.get("imageId"), imgId);
+			return criteriaBuilder.equal(root.get("imageId"), imageId);
 		};
 	}
 
