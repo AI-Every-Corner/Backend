@@ -420,7 +420,7 @@ public class GeminiService {
 			post.setContent(result);
 			post.setImageId(image.getImageId());
 			post.setLikes(0L);
-			post.setLocation("paradise");
+//			post.setLocation("paradise");
 			post.setMoodScore(Long.parseLong(respondFromGemini.split(" ")[1]));
 			post.setMoodTag(respondFromGemini.split(" ")[0]);
 			// postServices.createPost(post, null);

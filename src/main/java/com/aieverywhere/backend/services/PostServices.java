@@ -19,6 +19,7 @@ import com.aieverywhere.backend.models.Images;
 import com.aieverywhere.backend.models.Posts;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageRepo;
+import com.aieverywhere.backend.repostories.LikeRepo;
 import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.PostSpecifications;
 import com.aieverywhere.backend.repostories.RelaRepo;
@@ -30,15 +31,17 @@ public class PostServices {
 	private final UserRepo userRepo;
 	private final ImageRepo imageRepo;
 	private final RelaRepo relaRepo;
+	private final LikeRepo likeRepo;
 	private final ImagesServices imagesServices;
 
 	@Autowired
-	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo,
+	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo, LikeRepo likeRepo,
 			ImagesServices imagesServices) {
 		this.postRepo = postRepo;
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
 		this.relaRepo = relaRepo;
+		this.likeRepo = likeRepo;
 		this.imagesServices = imagesServices;
 	}
 
@@ -112,11 +115,11 @@ public class PostServices {
 			}
 
 			LocalDateTime updateAt = post.getUpdatedAt();
-			String location = post.getLocation();
 			Long userId = user.getUserId();
+			Long likes = post.getLikes();
 
 			// Only add posts where both nickname and imagePath are available
-			postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location, userId));
+			postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, userId, likes));
 		}
 
 		Long totalItems = postRepo.count();
@@ -200,8 +203,8 @@ public class PostServices {
 						user.getNickName(),
 						image.getImagePath(),
 						post.getUpdatedAt(),
-						post.getLocation(),
-						user.getUserId()));
+						user.getUserId(),
+						post.getLikes()));
 			}
 		}
 		return postResponseDTOList;
