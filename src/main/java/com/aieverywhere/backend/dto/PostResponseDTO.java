@@ -15,7 +15,7 @@ public class PostResponseDTO {
 	// Constructors
 	public PostResponseDTO() {
 	}
-	
+
 	public PostResponseDTO(Long postId, String content, String nickname, String imagePath, LocalDateTime updateAt,
 			String location, Long userId) {
 		super();

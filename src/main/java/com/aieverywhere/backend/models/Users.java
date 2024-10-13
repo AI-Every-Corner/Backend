@@ -41,6 +41,10 @@ public class Users {
 	private String phoneNum;
 	@Column(nullable = true)
 	private String imagePath;
+
+	@Column(nullable = true)
+	private String coverPath;
+
 	@Column(nullable = true)
 	private String personality;
 
@@ -67,6 +71,7 @@ public class Users {
 		this.email = argUser.getEmail();
 		this.phoneNum = argUser.getPhoneNum();
 		this.imagePath = argUser.getImagePath();
+		this.coverPath = argUser.getCoverPath();
 		this.personality = argUser.getPersonality();
 		this.emoLevel = argUser.getEmoLevel();
 		this.createdAt = argUser.getCreatedAt();
@@ -75,7 +80,7 @@ public class Users {
 
 	public Users(Long userId, String username, String password, Role role, String nickName, LocalDate birth,
 			Long age, Gender gender,
-			String email, String phoneNum, String imagePath, String personality, Long emoLevel, LocalDateTime createdAt,
+			String email, String phoneNum, String imagePath, String coverPath, String personality, Long emoLevel, LocalDateTime createdAt,
 			LocalDateTime updateAt) {
 
 		this.userId = userId;
@@ -89,6 +94,7 @@ public class Users {
 		this.email = email;
 		this.phoneNum = phoneNum;
 		this.imagePath = imagePath;
+		this.coverPath = coverPath;
 		this.personality = personality;
 		this.emoLevel = emoLevel;
 		this.createdAt = createdAt;
@@ -183,6 +189,14 @@ public class Users {
 
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
+	}
+
+	public String getCoverPath() {
+		return coverPath;
+	}
+
+	public void setCoverPath(String coverPath) {
+		this.coverPath = coverPath;
 	}
 
 	public String getPersonality() {

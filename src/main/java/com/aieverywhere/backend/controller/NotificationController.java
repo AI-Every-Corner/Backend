@@ -29,8 +29,10 @@ public class NotificationController {
     public ResponseEntity<Notifications> createNotification(@RequestBody NotificationRequest notificationRequest) {
         Notifications notification = notificationService.createNotification(
                 notificationRequest.getUserId(),
+                notificationRequest.getSenderId(),
                 notificationRequest.getContextType(),
-                notificationRequest.getType()
+                notificationRequest.getType(),
+                notificationRequest.getCreatedAt()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(notification);
     }
