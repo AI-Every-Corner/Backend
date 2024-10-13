@@ -2,7 +2,6 @@ package com.aieverywhere.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -55,34 +54,11 @@ public class LikeController {
 	@PutMapping("responses/{postId}/{responseId}/unlike")
 	public ResponseEntity<?> removeResponseLike(@PathVariable Long postId, @PathVariable Long responseId, @RequestHeader Long userId) {
 	    try {
-	        likesServices.removeRespondLike(responseId, postId, userId);
+	        likesServices.removeRespondLike(postId, responseId, userId);
 	        return ResponseEntity.ok("Like removed to response successfully");
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        return ResponseEntity.status(500).body("Failed to remove like: " + e.getMessage());
 	    }
 	}
-
-	
-//	@GetMapping("removeLike")
-//	public ResponseEntity<?> removeLike(@PathVariable Long postId,
-//			@PathVariable Long responseId,
-//			@PathVariable Long userId,
-//			@PathVariable Long likeId) {
-//		try {
-//			if (postId != 0L) {
-//	            likesServices.removePostLike(postId, userId, userId);
-//	            return ResponseEntity.status(200).body("removal success");
-//	        } else if (responseId != 0L) {
-//	            likesServices.removeRespondLike(responseId, userId, userId);
-//	            return ResponseEntity.status(200).body("removal success");
-//	        } else {
-//	            // Error case: neither postId nor responseId provided
-//	            return ResponseEntity.status(400).body("Error: Either postId or responseId must be provided");
-//	        }
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return ResponseEntity.status(500).body("Failed to add like: " + e.getMessage());
-//		}
-//	}
 }

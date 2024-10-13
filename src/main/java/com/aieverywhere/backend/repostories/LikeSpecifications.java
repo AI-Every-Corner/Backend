@@ -29,7 +29,7 @@ public class LikeSpecifications {
 			if (respId == null) {
 				return criteriaBuilder.conjunction(); // 返回一个总是为真的 Predicate
 			}
-			return criteriaBuilder.equal(root.get("respId"), respId);
+			return criteriaBuilder.equal(root.get("responseId"), respId);
 		};
 	}
 	

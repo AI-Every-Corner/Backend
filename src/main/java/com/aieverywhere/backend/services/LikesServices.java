@@ -30,97 +30,88 @@ public class LikesServices {
 	
 	@Transactional
 	public void addPostLike(Long postId, Long userId) {
-	    try {
-			// Check if the user has already liked the post
-			if (likeRepo.existsByPostIdAndUserId(postId, userId)) {
-			    throw new IllegalStateException("User has already liked this post");
-			}
-
-			// Add the like
-			Likes like = new Likes();
-			like.setPostId(postId);
-			like.setUserId(userId); // who press this
-			likeRepo.save(like);
-
-			// Update the post's like count
-			Posts post = postRepo.findById(postId)
-			    .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-			
-			post.setLikes(post.getLikes() + 1);
-			postRepo.save(post);
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
+		// Check if the user has already liked the post
+		if (likeRepo.existsByPostIdAndUserId(postId, userId)) {
+		    throw new IllegalStateException("User has already liked this post");
 		}
+
+		// Add the like
+		Likes like = new Likes();
+		like.setPostId(postId);
+		like.setUserId(userId); // who press this
+		likeRepo.save(like);
+
+		// Update the post's like count
+		Posts post = postRepo.findById(postId)
+		    .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+		
+		post.setLikes(post.getLikes() + 1);
+		postRepo.save(post);
 	}
 
 	@Transactional
 	public void removePostLike(Long postId, Long userId) {
-	    try {
-			// Check if the user has already liked the post
-			if (likeRepo.existsByPostIdAndUserId(postId, userId)) {
-				Specification<Likes> likeSpec = Specification.where(LikeSpecifications.hasPostId(postId))
-						.and(LikeSpecifications.hasUserId(userId));
-				
-				likeRepo.delete(likeSpec);
+		// Check if the user has already liked the post
+		if (likeRepo.existsByPostIdAndUserId(postId, userId)) {
+			Specification<Likes> likeSpec = Specification.where(LikeSpecifications.hasPostId(postId))
+					.and(LikeSpecifications.hasUserId(userId));
+			
+			likeRepo.delete(likeSpec);
 
-			    // Update the post's like count
-			    Posts post = postRepo.findById(postId)
-			        .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-			    
-			    post.setLikes(post.getLikes() - 1);
-			    postRepo.save(post);
-			}
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
-		}
+		    // Update the post's like count
+		    Posts post = postRepo.findById(postId)
+		        .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+		    
+		    post.setLikes(post.getLikes() - 1);
+		    postRepo.save(post);
+		} else {
+	        throw new EntityNotFoundException("Like not found for the given post or user");
+	    }
 	}
 	
 	public void addRespondLike(Long respId, Long postId, Long userId) {
-	    try {
-			// Check if the user has already liked the post
-			if (likeRepo.existsByResponseIdAndPostIdAndUserId(respId, postId, userId)) {
-			    throw new IllegalStateException("User has already liked this post");
-			}
-
-			// Add the like
-			Likes like = new Likes();
-			like.setPostId(postId);
-			like.setPostId(respId);
-			like.setUserId(userId);
-			likeRepo.save(like);
-
-			// Update the post's like count
-			Responses response = respRepo.findById(respId)
-			        .orElseThrow(() -> new EntityNotFoundException("Response not found"));
-			
-			response.setLikes(response.getLikes() + 1);
-			respRepo.save(response);
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
+	    // Check if the user has already liked the post
+		if (likeRepo.existsByResponseIdAndPostIdAndUserId(respId, postId, userId)) {
+		    throw new IllegalStateException("User has already liked this post");
 		}
+
+		// Add the like
+		Likes like = new Likes();
+		like.setPostId(postId);
+		like.setResponseId(respId);
+		like.setUserId(userId);
+		likeRepo.save(like);
+
+		// Update the post's like count
+		Responses response = respRepo.findById(respId)
+		        .orElseThrow(() -> new EntityNotFoundException("Response not found"));
+		
+		response.setLikes(response.getLikes() + 1);
+		respRepo.save(response);
 	}
 
 	@Transactional
-	public void removeRespondLike(Long respId, Long postId, Long userId) {
-		try {
-			if (likeRepo.existsByResponseIdAndPostIdAndUserId(respId, postId, userId)) {
-				Specification<Likes> likeSpec = Specification.where(LikeSpecifications.hasPostId(postId))
-						.and(LikeSpecifications.hasResponseId(respId))
-						.and(LikeSpecifications.hasUserId(userId));
-				
-				Likes like = likeRepo.findOne(likeSpec)
-			            .orElseThrow(() -> new EntityNotFoundException("Like not found"));
+	public void removeRespondLike(Long postId, Long responseId, Long userId) {
+		if (likeRepo.existsByResponseIdAndPostIdAndUserId(responseId, postId, userId)) {
+	        Specification<Likes> likeSpec = Specification.where(LikeSpecifications.hasPostId(postId))
+	                .and(LikeSpecifications.hasResponseId(responseId))
+	                .and(LikeSpecifications.hasUserId(userId));
+	        
+	        Likes like = likeRepo.findOne(likeSpec)
+	            .orElseThrow(() -> new EntityNotFoundException("Like not found"));
 
-			    // Update the post's like count
-			    Responses response = respRepo.findById(like.getResponseId())
-			        .orElseThrow(() -> new EntityNotFoundException("Response not found"));
-			    
-			    response.setLikes(response.getLikes() - 1);
-			    respRepo.save(response);
-			}
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
-		}
+	        // Delete the like
+	        likeRepo.delete(like);
+
+	        // Update the response's like count
+	        Responses response = respRepo.findById(responseId)
+	            .orElseThrow(() -> new EntityNotFoundException("Response not found"));
+	        
+	        response.setLikes(response.getLikes() - 1);
+	        respRepo.save(response);
+	    } else {
+	        throw new EntityNotFoundException("Like not found for the given post, response, or user");
+	    }
 	}
 	
 }
