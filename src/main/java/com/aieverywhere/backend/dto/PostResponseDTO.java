@@ -9,7 +9,6 @@ public class PostResponseDTO {
 	private String nickname = null;
 	private String imagePath = null;
 	private LocalDateTime updateAt = null;
-	private String location = null;
 	private Long userId = 0L;
 	private Long likes = 0L;
 
@@ -18,14 +17,13 @@ public class PostResponseDTO {
 	}
 
 	public PostResponseDTO(Long postId, String content, String nickname, String imagePath, LocalDateTime updateAt,
-			String location, Long userId, Long likes) {
+			Long userId, Long likes) {
 		super();
 		this.postId = postId;
 		this.content = content;
 		this.nickname = nickname;
 		this.imagePath = imagePath;
 		this.updateAt = updateAt;
-		this.location = location;
 		this.userId = userId;
 		this.likes = likes;
 	}
@@ -70,15 +68,7 @@ public class PostResponseDTO {
 	public void setUpdateAt(LocalDateTime updateAt) {
 		this.updateAt = updateAt;
 	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
+	
 	public Long getUserId() {
 		return userId;
 	}
