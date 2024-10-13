@@ -1,6 +1,7 @@
 package com.aieverywhere.backend.services;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -15,8 +16,8 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    public Notifications createNotification(Long userId, String contextType, Notifications.Type type) {
-        Notifications notification = new Notifications(userId, contextType, type);
+    public Notifications createNotification(Long userId, Long senderId,String contextType, Notifications.Type type, LocalDateTime createdAt ) {
+        Notifications notification = new Notifications(userId, senderId,contextType, type , createdAt);
         return notificationRepository.save(notification);
     }
 
