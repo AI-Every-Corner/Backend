@@ -15,7 +15,7 @@ public class LikeSpecifications {
 		};
 	}
 	
-	public static Specification<Posts> hasPostId(Long postId) {
+	public static Specification<Likes> hasPostId(Long postId) {
 		return (root, query, criteriaBuilder) -> {
 			if (postId == null) {
 				return criteriaBuilder.conjunction(); // 返回一个总是为真的 Predicate
