@@ -1,36 +1,29 @@
 package com.aieverywhere.backend.services;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.models.Images;
-import com.aieverywhere.backend.models.Likes;
 import com.aieverywhere.backend.models.Posts;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageRepo;
 import com.aieverywhere.backend.repostories.LikeRepo;
-import com.aieverywhere.backend.repostories.LikeSpecifications;
 import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.PostSpecifications;
 import com.aieverywhere.backend.repostories.RelaRepo;
 import com.aieverywhere.backend.repostories.UserRepo;
-
-import jakarta.persistence.Query;
 
 @Service
 public class PostServices {
@@ -38,6 +31,7 @@ public class PostServices {
 	private final UserRepo userRepo;
 	private final ImageRepo imageRepo;
 	private final RelaRepo relaRepo;
+	private final LikeRepo likeRepo;
 	private final ImagesServices imagesServices;
 
 	@Autowired
@@ -47,26 +41,27 @@ public class PostServices {
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
 		this.relaRepo = relaRepo;
+		this.likeRepo = likeRepo;
 		this.imagesServices = imagesServices;
 	}
 
 	public Posts createPost(Posts post, MultipartFile imageFile) {
 		try {
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = imagesServices.uploadImage(imageFile); // 使用已經存在的 ImagesServices 來保存圖片
-                Images image = new Images();
-                image.setImagePath(imageUrl);
-                image.setIsUploadByUser(true);
-                imagesServices.createImage(image);
-                post.setImgId(image.getImgId());
-            }
-            post.setCreatedAt(LocalDateTime.now());
-            post.setUpdatedAt(LocalDateTime.now());
-            return postRepo.save(post);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to store post: " + e.getMessage());
-        }
+			if (imageFile != null && !imageFile.isEmpty()) {
+				String imageUrl = imagesServices.uploadImage(imageFile); // 使用已經存在的 ImagesServices 來保存圖片
+				Images image = new Images();
+				image.setImagePath(imageUrl);
+				image.setIsUploadByUser(true);
+				imagesServices.createImage(image);
+				post.setImageId(image.getImageId());
+			}
+			post.setCreatedAt(LocalDateTime.now());
+			post.setUpdatedAt(LocalDateTime.now());
+			return postRepo.save(post);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Failed to store post: " + e.getMessage());
+		}
 	}
 
 	public Posts getPostByPostId(Long postId) {
@@ -90,54 +85,53 @@ public class PostServices {
 		postRepo.deleteByPostId(postId);
 
 	}
-	
+
 	public Map<String, Object> getAllPagedPosts(int page, int size) {
-	    Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
-	    
-	    List<PostResponseDTO> postsList = new ArrayList<>();
-	    for (Posts post : postsPage) {
-	        Long postId = post.getPostId();
-	        String content = post.getContent();
+		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
 
-	        // Fetch user information
-	        Users user = userRepo.findByUserId(post.getUserId());
-	        String nickname = null;
-	        if (user != null) {
-	            nickname = user.getNickName();
-	        } else {
-	            // Handle the case where the user is null
-	            System.err.println("User with ID " + post.getUserId() + " not found.");
-	            continue; // Skip this post if the user is not found
-	        }
+		List<PostResponseDTO> postsList = new ArrayList<>();
+		for (Posts post : postsPage) {
+			Long postId = post.getPostId();
+			String content = post.getContent();
 
-	        // Fetch image information
-	        Images image = imageRepo.getReferenceById(post.getImgId());
-	        String imagePath = null;
-	        if (image != null) {
-	            imagePath = image.getImagePath();
-	        } else {
-	            System.err.println("Image with ID " + post.getImgId() + " not found.");
-	        }
-	        
-	        LocalDateTime updateAt = post.getUpdatedAt();
-	        String location = post.getLocation();
-	        Long userId = user.getUserId();
-	        Long likes = post.getLikes();
+			// Fetch user information
+			Users user = userRepo.findByUserId(post.getUserId());
+			String nickname = null;
+			if (user != null) {
+				nickname = user.getNickName();
+			} else {
+				// Handle the case where the user is null
+				System.err.println("User with ID " + post.getUserId() + " not found.");
+				continue; // Skip this post if the user is not found
+			}
 
-	        // Only add posts where both nickname and imagePath are available
-	        postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, location, userId, likes));
-	    }
-	    
-	    Long totalItems = postRepo.count();
+			// Fetch image information
+			Images image = imageRepo.findByImageId(post.getImageId());
+			String imagePath = null;
+			if (image != null) {
+				imagePath = image.getImagePath();
+			} else {
+				System.err.println("Image with ID " + post.getImageId() + " not found.");
+			}
+
+			LocalDateTime updateAt = post.getUpdatedAt();
+			Long userId = user.getUserId();
+			Long likes = post.getLikes();
+
+			// Only add posts where both nickname and imagePath are available
+			postsList.add(new PostResponseDTO(postId, content, nickname, imagePath, updateAt, userId, likes));
+		}
+
+		Long totalItems = postRepo.count();
 		int totalPages = (int) Math.ceil((double) totalItems / size);
 
-	    Map<String, Object> postMap = new HashMap<>();
-	    postMap.put("postsList", postsList);
-	    postMap.put("currentPage", page);
+		Map<String, Object> postMap = new HashMap<>();
+		postMap.put("postsList", postsList);
+		postMap.put("currentPage", page);
 		postMap.put("totalItems", totalItems);
 		postMap.put("totalPages", totalPages);
-		
-	    return postMap;
+
+		return postMap;
 	}
 
 	// the userId is for find friend status and can show friends posts first
@@ -160,12 +154,11 @@ public class PostServices {
 	// month is all upperCase English
 	public Map<LocalDateTime, Double> monthReviewData(Long userId) {
 		List<Posts> allUserPost = postRepo.findAllByUserIdOrderByCreatedAtAsc(userId);
-		Map<LocalDateTime, List<Double> >yearReview = new HashMap<>();
-		
+		Map<LocalDateTime, List<Double>> yearReview = new HashMap<>();
+
 		List<Posts> postInThisYear = allUserPost.stream()
 				.filter(post -> post.getCreatedAt().getYear() == LocalDateTime.now().getYear())
 				.collect(Collectors.toList());
-		
 
 		for (Posts post : postInThisYear) {
 			if (yearReview.containsKey(post.getCreatedAt())) {
@@ -189,34 +182,37 @@ public class PostServices {
 				resultMap.put(key, value.get(0));
 			}
 		});
-		return resultMap ;
+		return resultMap;
 	}
-	
-	 public List<PostResponseDTO> getPostsByUserId(Long userId) {
-	        // 查找所有該用戶的帖子
-	        List<Posts> postsList = postRepo.findAllByUserIdOrderByCreatedAtAsc(userId);
 
-	        List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
-	        for (Posts post : postsList) {
-	            Users user = userRepo.findByUserId(post.getUserId());
-	            
-	            Images image = imageRepo.getReferenceById(post.getImgId());
-	            
-	            // 構建 PostResponseDTO，檢查 user 是否為 null
-	            if (user != null) {
-	                postResponseDTOList.add(new PostResponseDTO(
-	                    post.getPostId(),
-	                    post.getContent(),
-	                    user.getNickName(),
-	                    image.getImagePath(),
-	                    post.getUpdatedAt(),
-	                    post.getLocation(),
-	                    user.getUserId(),
-	                    post.getLikes()
-	                ));
-	            }
-	        }
-	        return postResponseDTOList;
-	    }
+	public List<PostResponseDTO> getPostsByUserId(Long userId) {
+		// 查找所有該用戶的帖子
+		List<Posts> postsList = postRepo.findAllByUserIdOrderByCreatedAtAsc(userId);
+
+		List<PostResponseDTO> postResponseDTOList = new ArrayList<>();
+		for (Posts post : postsList) {
+			Users user = userRepo.findByUserId(post.getUserId());
+			Images image = imageRepo.getReferenceById(post.getImageId());
+
+
+			// 構建 PostResponseDTO，檢查 user 是否為 null
+			if (user != null) {
+				postResponseDTOList.add(new PostResponseDTO(
+						post.getPostId(),
+						post.getContent(),
+						user.getNickName(),
+						image.getImagePath(),
+						post.getUpdatedAt(),
+						user.getUserId(),
+						post.getLikes()));
+			}
+		}
+		return postResponseDTOList;
+	}
+
+	public List<Posts> searchPostsByContent(String searchContent) {
+		// Use the repository method to find posts containing the input content
+		return postRepo.findByContentContainingIgnoreCase(searchContent);
+	}
 
 }

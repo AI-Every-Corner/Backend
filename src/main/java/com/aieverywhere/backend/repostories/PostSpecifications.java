@@ -32,12 +32,12 @@ public class PostSpecifications {
 		};
 	}
 
-	public static Specification<Posts> hasImageId(Long imgId) {
+	public static Specification<Posts> hasImageId(Long imageId) {
 		return (root, query, criteriaBuilder) -> {
-			if (imgId == null) {
+			if (imageId == null) {
 				return criteriaBuilder.conjunction(); // 返回一个总是为真的 Predicate
 			}
-			return criteriaBuilder.equal(root.get("imageId"), imgId);
+			return criteriaBuilder.equal(root.get("imageId"), imageId);
 		};
 	}
 
@@ -60,58 +60,58 @@ public class PostSpecifications {
 
 		};
 	}
-	
+
 	public static Specification<Posts> userHasName(String username) {
-	    return (root, query, criteriaBuilder) -> {
-	        Join<Posts, Users> userJoin = root.join("user");
-	        return criteriaBuilder.equal(userJoin.get("username"), username);
-	    };
+		return (root, query, criteriaBuilder) -> {
+			Join<Posts, Users> userJoin = root.join("user");
+			return criteriaBuilder.equal(userJoin.get("username"), username);
+		};
 	}
-	
-    public static Specification<Posts> joinUsers() {
-        return (root, query, criteriaBuilder) -> {
-            // Join with Users table
-            Join<Posts, Users> userJoin = root.join("user");
-            return criteriaBuilder.conjunction(); // No filtering here, just creating the join
-        };
-    }
 
-    public static Specification<Posts> joinImages() {
-        return (root, query, criteriaBuilder) -> {
-            // Join with Images table
-            Join<Posts, Images> imageJoin = root.join("image");
-            return criteriaBuilder.conjunction(); // No filtering here, just creating the join
-        };
-    }
-    
-    public static Specification<Object[]> fetchPostDetails() {
-        return (root, query, criteriaBuilder) -> {
-            // Join with Users table
-//            Join<Posts, Users> userJoin = root.join("users");
-            // Join with Images table
-//            Join<Posts, Images> imageJoin = root.join("images");
+	public static Specification<Posts> joinUsers() {
+		return (root, query, criteriaBuilder) -> {
+			// Join with Users table
+			Join<Posts, Users> userJoin = root.join("user");
+			return criteriaBuilder.conjunction(); // No filtering here, just creating the join
+		};
+	}
 
-            // Add the fields you want to select
-            query.multiselect(
-                root.get("postId"),       // Post ID
-                root.get("content")      // Post content
-//                userJoin.get("username"), // User's username
-//                imageJoin.get("imagePath") // Image path
-            );
+	public static Specification<Posts> joinImages() {
+		return (root, query, criteriaBuilder) -> {
+			// Join with Images table
+			Join<Posts, Images> imageJoin = root.join("image");
+			return criteriaBuilder.conjunction(); // No filtering here, just creating the join
+		};
+	}
 
-            // No additional restrictions (WHERE clause), so return null
-            return null;
-        };
-    }
+	public static Specification<Object[]> fetchPostDetails() {
+		return (root, query, criteriaBuilder) -> {
+			// Join with Users table
+			// Join<Posts, Users> userJoin = root.join("users");
+			// Join with Images table
+			// Join<Posts, Images> imageJoin = root.join("images");
 
-    public static Specification<Posts> countPosts() {
-        return (Root<Posts> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            // Modify the query to perform a count operation
-            query.multiselect(criteriaBuilder.count(root));
-            // Since we only want to count, no additional restrictions are needed, so return null
-            return null;
-        };
-    }
+			// Add the fields you want to select
+			query.multiselect(
+					root.get("postId"), // Post ID
+					root.get("content") // Post content
+			// userJoin.get("username"), // User's username
+			// imageJoin.get("imagePath") // Image path
+			);
 
-	
+			// No additional restrictions (WHERE clause), so return null
+			return null;
+		};
+	}
+
+	public static Specification<Posts> countPosts() {
+		return (Root<Posts> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+			// Modify the query to perform a count operation
+			query.multiselect(criteriaBuilder.count(root));
+			// Since we only want to count, no additional restrictions are needed, so return
+			// null
+			return null;
+		};
+	}
+
 }
