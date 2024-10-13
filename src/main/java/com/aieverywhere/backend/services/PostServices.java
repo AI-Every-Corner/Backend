@@ -16,10 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.models.Images;
+import com.aieverywhere.backend.models.Likes;
 import com.aieverywhere.backend.models.Posts;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageRepo;
 import com.aieverywhere.backend.repostories.LikeRepo;
+import com.aieverywhere.backend.repostories.LikeSpecifications;
 import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.PostSpecifications;
 import com.aieverywhere.backend.repostories.RelaRepo;
