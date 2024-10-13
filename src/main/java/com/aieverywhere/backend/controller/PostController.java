@@ -1,8 +1,6 @@
 package com.aieverywhere.backend.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,24 +15,22 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.aieverywhere.backend.models.Posts;
-
+import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.services.PostServices;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
+import com.aieverywhere.backend.services.UsersServices;
 
 @RestController
 @RequestMapping("/")
 public class PostController {
 
 	private PostServices postServices;
-	private EntityManager entityManager;
+	private UsersServices usersServices;
 
 	@Autowired
-	public PostController(PostServices postServices, EntityManager entityManager) {
+	public PostController(PostServices postServices, UsersServices usersServices) {
 		this.postServices = postServices;
-		this.entityManager = entityManager;
+		this.usersServices = usersServices;
 	}
 
 	@GetMapping("posts")
@@ -43,69 +39,25 @@ public class PostController {
 		System.out.println("in posts");
 
 		try {
-			// SQL query
-//			String sqlStr = "SELECT p.post_id AS postId, p.content AS content, u.username AS username, i.image_path AS imagePath "
-//					+ "FROM posts p JOIN users u ON p.user_id = u.user_id " + "JOIN images i ON p.img_id = i.image_id";
-//
-//			// Pagination
-//			int offset = page * size;
-//
-//			// Create query and set parameters
-//			Query query = entityManager.createNativeQuery(sqlStr);
-//
-//			// Apply pagination
-//			query.setFirstResult(offset);
-//			query.setMaxResults(size);
-//
-//			// Execute query and retrieve results
-//			List<Object[]> results = query.getResultList();
-//
-//			// Transform results into PostResponseDTO
-//			List<PostResponseDTO> postRes = new ArrayList<>();
-//			for (Object[] row : results) {
-//				Long postId = ((Number) row[0]).longValue();
-//				String content = (String) row[1];
-//				String username = (String) row[2];
-//				String imagePath = (String) row[3];
-//				postRes.add(new PostResponseDTO(postId, content, username, imagePath));
-//			}
-//
-//			// Modified count query to get the total number of items
-//			String cntSqlStr = "SELECT COUNT(*) FROM POSTS";
-//			Query cntQuery = entityManager.createNativeQuery(cntSqlStr);
-//			System.out.println("cnt: " + cntQuery);
-//			
-//			// Retrieve the total number of items
-//			Long totalItems = ((Number) cntQuery.getSingleResult()).longValue();
-//			int totalPages = (int) Math.ceil((double) totalItems / size);
-//
-//			// Prepare response
-//			Map<String, Object> postMap = new HashMap<>();
-//			postMap.put("postRes", postRes);
-//			postMap.put("currentPage", page);
-//			postMap.put("totalItems", totalItems);
-//			postMap.put("totalPages", totalPages);
-
 			// Prepare response
 			Map<String, Object> postMap = postServices.getAllPagedPosts(page, size);
 			return ResponseEntity.status(200).body(postMap);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ResponseEntity.status(500).body("failed: " + e.getMessage());
 		}
 	}
-	
+
 	@GetMapping("posts/{userId}")
-	public ResponseEntity<?> getPostByUserId(@PathVariable Long userId){
+	public ResponseEntity<?> getPostByUserId(@PathVariable Long userId) {
 		try {
-            // 調用服務層的方法
-            List<PostResponseDTO> posts = postServices.getPostsByUserId(userId);
-            return ResponseEntity.status(200).body(posts);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Failed to retrieve posts: " + e.getMessage());
-        }
+			// 調用服務層的方法
+			List<PostResponseDTO> posts = postServices.getPostsByUserId(userId);
+			return ResponseEntity.status(200).body(posts);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(500).body("Failed to retrieve posts: " + e.getMessage());
+		}
 	}
 
 	@PostMapping("yearReview/{userId}")
@@ -119,11 +71,11 @@ public class PostController {
 		}
 
 	}
-	@PostMapping("/createPost")
+
+	@PostMapping("createPost")
 	public ResponseEntity<?> createPost(
-		@RequestPart("post") Posts post,
-		@RequestPart(value = "image", required = false) MultipartFile imageFile
-	) {
+			@RequestPart("post") Posts post,
+			@RequestPart(value = "image", required = false) MultipartFile imageFile) {
 		try {
 			postServices.createPost(post, imageFile);
 			return ResponseEntity.status(201).body("Post created successfully");
@@ -133,5 +85,29 @@ public class PostController {
 		}
 	}
 
-	
+	@GetMapping("search")
+	public ResponseEntity<?> getPostsOrFriendsByContext(
+			@RequestParam(value = "searchcontext", required = false) String searchContent,
+			@RequestParam(value = "post", required = false) String post,
+			@RequestParam(value = "user", required = false) String user) {
+
+		try {
+			if (user == "") {
+				List<Posts> posts = postServices.searchPostsByContent(searchContent);
+				return ResponseEntity.status(200).body(posts);
+
+			} else {
+				List<Users> users = usersServices.searchAndRemoveDuplicates(searchContent);
+				return ResponseEntity.status(200).body(users);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(500).body("Failed to retrieve posts: " +
+					e.getMessage());
+
+		}
+
+	}
+
 }

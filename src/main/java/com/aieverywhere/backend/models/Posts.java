@@ -2,15 +2,11 @@ package com.aieverywhere.backend.models;
 
 import java.time.LocalDateTime;
 
-import com.aieverywhere.backend.dto.PostResponseDTO;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,7 +17,7 @@ public class Posts {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long postId;
 	private Long userId;
-	private Long imgId;
+	private Long imageId;
 	private String content;
 	private String moodTag;
 	private Long moodScore;
@@ -34,11 +30,11 @@ public class Posts {
 
 	}
 
-	public Posts(Long postId, Long userId, Long imgId, String content, String moodTag, Long moodScore, Long likes,
+	public Posts(Long postId, Long userId, Long imageId, String content, String moodTag, Long moodScore, Long likes,
 			LocalDateTime createdAt, LocalDateTime updatedAt, String location) {
 		this.postId = postId;
 		this.userId = userId;
-		this.imgId = imgId;
+		this.imageId = imageId;
 		this.content = content;
 		this.moodTag = moodTag;
 		this.moodScore = moodScore;
@@ -64,12 +60,12 @@ public class Posts {
 		this.userId = userId;
 	}
 
-	public Long getImgId() {
-		return imgId;
+	public Long getImageId() {
+		return imageId;
 	}
 
-	public void setImgId(Long imgId) {
-		this.imgId = imgId;
+	public void setImageId(Long imageId) {
+		this.imageId = imageId;
 	}
 
 	public String getContent() {
