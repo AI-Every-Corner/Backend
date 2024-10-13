@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -57,6 +58,7 @@ public class GeminiService {
 	private final String API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=%s";
 
 	// this postId is for look which post is ai responding to
+	@Scheduled(cron = "0 0 * * * ?") // Every hour, at the start of the hour
 	public String AiRespondPost(Long postId) throws Exception {
 
 		// get all the data to send to gemini
@@ -171,7 +173,7 @@ public class GeminiService {
 	// on user respond
 	//
 	// if random an AI then send a friend request to add friend after respond
-
+	@Scheduled(cron = "0 30 * * * ?") // Every hour, at the 30min
 	public String AiRespondToRespond(Long postId) throws Exception {
 
 		Posts post = postServices.getPostByPostId(postId);
@@ -198,7 +200,8 @@ public class GeminiService {
 			}
 			List<Boolean> allUserRelationship = new ArrayList<>();
 			for (Users user : allRespondUser) {
-				allUserRelationship.add(relationshipServices.checkFollowRelationship(user.getUserId(), aiUser.getUserId()));
+				allUserRelationship
+						.add(relationshipServices.checkFollowRelationship(user.getUserId(), aiUser.getUserId()));
 			}
 
 			String allRespondUserRelationship = "those are responses of the post ";
@@ -234,7 +237,8 @@ public class GeminiService {
 			}
 			List<Boolean> allUserRelationship = new ArrayList<>();
 			for (Users user : allRespondUser) {
-				allUserRelationship.add(relationshipServices.checkFollowRelationship(user.getUserId(), aiUser.getUserId()));
+				allUserRelationship
+						.add(relationshipServices.checkFollowRelationship(user.getUserId(), aiUser.getUserId()));
 			}
 
 			String allRespondUserRelationship = "those are responses of the post ";
@@ -327,6 +331,7 @@ public class GeminiService {
 	// get the respond and fill the post object
 	// and save to the post
 	// this is for ai to create a post
+	@Scheduled(cron = "0 40 * * * ?")
 	public String aiCreatePost() throws Exception {
 		// get random ai user
 		Random random = new Random();
@@ -347,24 +352,26 @@ public class GeminiService {
 		Images image = null;
 		check = true;
 		while (check) {
-			image = imagesService.findImageById(random.nextLong(imageCount) + 1);
+			image = imagesService.findImageByIdForAi(random.nextLong(imageCount) + 1);
 			if (!image.getIsUploadByUser() && image.getUseCount().doubleValue() < averUseCount) {
 				check = false;
 			}
 		}
 
-		String context = "i will give you a description of a image here is the description " + image.getDescription()
-				+ " assume you are a user on a soical platform and you are going to use the image to post a post "
-				+ " (imagine the image with the description) and your personality is "
-				+ aiUser.getPersonality() + " and your emotion level is " + aiUser.getEmoLevel()
-				+ "your gender is " + aiUser.getGender()
-				+ " your birthday is at " + aiUser.getBirth().toString()
-				+ " if today is near your birthday 40% chance that you can respond that is related to your birthday "
-				+ " at the start of of the respond give me a word as moodtag that represent your feeling when you post the post "
-				+ " and select a number 1~10 to tell other how strong the felling is and then is the context that your are gpoing to post"
-				+ "just give me moodtag(a word) and a number and context you gonna post ,Please follow this specification exactly "
-				+ " like this \"happy 5 what a beautiful day! maybe be a bird will be happier!\""
-				+ "please dant have * or other kinf of symbol";
+		String context = "I will give you a description of an image: " + image.getDescription() + ". " +
+				"Imagine you are a user on a social platform planning to post this image. " +
+				"Your personality is " + aiUser.getPersonality() + ", your emotion level is " + aiUser.getEmoLevel()
+				+ ", " +
+				"your gender is " + aiUser.getGender() + ", and your birthday is " + aiUser.getBirth().toString() + ". "
+				+
+				"If today is near your birthday, there is a 40% chance that your response may relate to that. " +
+				"When responding, please include a mood tag (a single word) that represents how you feel when you post. "
+				+
+				"Also, select a number from 1 to 10 to indicate the strength of that feeling. " +
+				"Here’s the context you are going to post: " +
+				"Please format your response like this: \"moodtag number context\". " +
+				"For example: \"happy 5 What a beautiful day! Maybe a bird will be happier!\" " +
+				"Do not include any symbols like * or others.";
 
 		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
 
@@ -400,7 +407,7 @@ public class GeminiService {
 		}
 
 		HttpEntity<String> request = new HttpEntity<>(requestBody);
-		System.out.println("Request Body: " + request.toString());
+		// System.out.println("Request Body: " + request.toString());
 
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
@@ -411,7 +418,6 @@ public class GeminiService {
 			}
 
 			String respondFromGemini = extractTextFromRespond(responseBody);
-			System.out.println(respondFromGemini);
 			String[] words = respondFromGemini.split(" ");
 			String result = Arrays.stream(words).skip(2).collect(Collectors.joining(" "));
 			System.out.println(result);
@@ -419,11 +425,11 @@ public class GeminiService {
 			post.setUserId(aiUser.getUserId());
 			post.setContent(result);
 			post.setImageId(image.getImageId());
+			System.out.println(post.getImageId());
 			post.setLikes(0L);
-//			post.setLocation("paradise");
 			post.setMoodScore(Long.parseLong(respondFromGemini.split(" ")[1]));
 			post.setMoodTag(respondFromGemini.split(" ")[0]);
-			// postServices.createPost(post, null);
+			postServices.createPost(post, null);
 
 			return respondFromGemini;
 		} catch (HttpClientErrorException e) {

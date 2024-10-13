@@ -84,4 +84,8 @@ public class ImagesServices {
 		return imageRepo.count();
 	}
 
+	public Images findImageByIdForAi(Long imageId) {
+		return imageRepo.findByImageId(imageId);
+	}
+
 }
