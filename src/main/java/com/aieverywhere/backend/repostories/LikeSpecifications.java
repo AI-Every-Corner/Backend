@@ -23,4 +23,22 @@ public class LikeSpecifications {
 			return criteriaBuilder.equal(root.get("postId"), postId);
 		};
 	}
+	
+	public static Specification<Likes> hasResponseId(Long respId) {
+		return (root, query, criteriaBuilder) -> {
+			if (respId == null) {
+				return criteriaBuilder.conjunction(); // 返回一个总是为真的 Predicate
+			}
+			return criteriaBuilder.equal(root.get("respId"), respId);
+		};
+	}
+	
+	public static Specification<Likes> hasUserId(Long userId) {
+		return (root, query, criteriaBuilder) -> {
+			if (userId == null) {
+				return criteriaBuilder.conjunction(); // 返回一个总是为真的 Predicate
+			}
+			return criteriaBuilder.equal(root.get("userId"), userId);
+		};
+	}
 }

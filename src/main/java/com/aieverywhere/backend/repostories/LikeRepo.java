@@ -9,7 +9,7 @@ public interface LikeRepo extends JpaRepository<Likes, Long>, JpaSpecificationEx
 
 	void deleteAllByLikeId(Long likeId);
 
-    boolean existsByPostId(Long postId);
+    boolean existsByPostIdAndUserId(Long postId, Long userId);
 
-    boolean existsByResponseIdAndPostId(Long responseId, Long postId);
+    boolean existsByResponseIdAndPostIdAndUserId(Long responseId, Long postId, Long userId);
 }

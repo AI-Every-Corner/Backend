@@ -29,16 +29,39 @@ public class LikeController {
 	    }
 	}
 
-//	@PutMapping("responses/{responseId}/like")
-//	public ResponseEntity<?> addResponseLike(@PathVariable Long responseId, @RequestHeader Long userId) {
-//	    try {
-//	        likesServices.addRespondLike(responseId, userId);
-//	        return ResponseEntity.ok("Like added to response successfully");
-//	    } catch (Exception e) {
-//	        e.printStackTrace();
-//	        return ResponseEntity.status(500).body("Failed to add like: " + e.getMessage());
-//	    }
-//	}
+	
+	@PutMapping("posts/{postId}/unlike")
+	public ResponseEntity<?> removePostLike(@PathVariable Long postId, @RequestHeader Long userId) {
+	    try {
+	        likesServices.removePostLike(postId, userId);
+	        return ResponseEntity.ok("Like removed to post successfully");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(500).body("Failed to remove like: " + e.getMessage());
+	    }
+	}
+
+	@PutMapping("responses/{postId}/{responseId}/like")
+	public ResponseEntity<?> addResponseLike(@PathVariable Long postId, @PathVariable Long responseId, @RequestHeader Long userId) {
+	    try {
+	        likesServices.addRespondLike(responseId, postId, userId);
+	        return ResponseEntity.ok("Like added to response successfully");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(500).body("Failed to add like: " + e.getMessage());
+	    }
+	}
+	
+	@PutMapping("responses/{postId}/{responseId}/unlike")
+	public ResponseEntity<?> removeResponseLike(@PathVariable Long postId, @PathVariable Long responseId, @RequestHeader Long userId) {
+	    try {
+	        likesServices.removeRespondLike(responseId, postId, userId);
+	        return ResponseEntity.ok("Like removed to response successfully");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(500).body("Failed to remove like: " + e.getMessage());
+	    }
+	}
 
 	
 //	@GetMapping("removeLike")
