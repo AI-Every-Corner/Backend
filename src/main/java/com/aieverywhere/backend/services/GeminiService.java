@@ -201,7 +201,7 @@ public class GeminiService {
 	// on user respond
 	//
 	// if random an AI then send a friend request to add friend after respond
-	@Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
+	// @Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
 	public String AiRespondToRespond() throws Exception {
 		Long postCount = postServices.postCount();
 		Random random = new Random();

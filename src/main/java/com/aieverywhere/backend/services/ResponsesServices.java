@@ -13,8 +13,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.dto.RespResponseDTO;
+import com.aieverywhere.backend.models.Notifications;
+import com.aieverywhere.backend.models.Notifications.Type;
 import com.aieverywhere.backend.models.Responses;
 import com.aieverywhere.backend.models.Users;
+import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.RespRepo;
 import com.aieverywhere.backend.repostories.RespSpecifications;
 import com.aieverywhere.backend.repostories.UserRepo;
@@ -25,16 +28,29 @@ public class ResponsesServices {
     @Autowired
     private RespRepo respRepo;
     private UserRepo userRepo;
+    private PostRepo postRepo;
+    private NotificationService notificationService;
 
-    public ResponsesServices(RespRepo respRepo, UserRepo userRepo) {
+    public ResponsesServices(RespRepo respRepo, UserRepo userRepo, PostRepo postRepo,
+            NotificationService notificationService) {
         this.respRepo = respRepo;
         this.userRepo = userRepo;
+        this.postRepo = postRepo;
+        this.notificationService = notificationService;
     }
 
     // Create a new response
     public Responses createResponse(Responses response) {
         response.setCreatedAt(LocalDateTime.now());
         response.setUpdateAt(LocalDateTime.now());
+        // create a notification
+        Notifications notification = new Notifications();
+        notification.setSenderId(response.getUserId());
+        notification.setType(Type.Response);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUserId(postRepo.findByPostId(response.getPostId()).getUserId());
+        notification.setRespondId(response.getPostId());
+        notificationService.createContextAndSave(notification);
         return respRepo.save(response);
     }
 
