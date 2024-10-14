@@ -17,12 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aieverywhere.backend.dto.PostResponseDTO;
 import com.aieverywhere.backend.models.Images;
-import com.aieverywhere.backend.models.Likes;
+import com.aieverywhere.backend.models.Notifications;
+import com.aieverywhere.backend.models.Notifications.Type;
 import com.aieverywhere.backend.models.Posts;
+import com.aieverywhere.backend.models.Relationship;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.ImageRepo;
-import com.aieverywhere.backend.repostories.LikeRepo;
-import com.aieverywhere.backend.repostories.LikeSpecifications;
 import com.aieverywhere.backend.repostories.PostRepo;
 import com.aieverywhere.backend.repostories.PostSpecifications;
 import com.aieverywhere.backend.repostories.RelaRepo;
@@ -30,25 +30,25 @@ import com.aieverywhere.backend.repostories.UserRepo;
 
 @Service
 public class PostServices {
-	private final PostRepo postRepo;
-	private final UserRepo userRepo;
-	private final ImageRepo imageRepo;
-	private final RelaRepo relaRepo;
-	private final LikeRepo likeRepo;
-	private final ImagesServices imagesServices;
+	private PostRepo postRepo;
+	private UserRepo userRepo;
+	private ImageRepo imageRepo;
+	private RelaRepo relaRepo;
+	private ImagesServices imagesServices;
+	private NotificationService notificationService;
 
 	@Autowired
-	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo, LikeRepo likeRepo,
-			ImagesServices imagesServices) {
+	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo,
+			ImagesServices imagesServices, NotificationService notificationService) {
 		this.postRepo = postRepo;
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
 		this.relaRepo = relaRepo;
-		this.likeRepo = likeRepo;
 		this.imagesServices = imagesServices;
+		this.notificationService = notificationService;
 	}
 
-	public Posts createPost(Posts post, MultipartFile imageFile) {
+	public void createPost(Posts post, MultipartFile imageFile) {
 		try {
 			if (imageFile != null && !imageFile.isEmpty()) {
 				String imageUrl = imagesServices.uploadImage(imageFile); // 使用已經存在的 ImagesServices 來保存圖片
@@ -60,7 +60,22 @@ public class PostServices {
 			}
 			post.setCreatedAt(LocalDateTime.now());
 			post.setUpdatedAt(LocalDateTime.now());
-			return postRepo.save(post);
+			Posts post1 = postRepo.save(post);
+
+			// create notification
+			List<Relationship> followerList = relaRepo.findAllByFriendId(post.getUserId());
+			if (!followerList.isEmpty()) {
+				for (Relationship relationship : followerList) {
+					Notifications notification = new Notifications();
+					notification.setSenderId(relationship.getFriendId());
+					notification.setType(Type.Post);
+					notification.setCreatedAt(LocalDateTime.now());
+					notification.setUserId(relationship.getUserId());
+					notification.setPostId(post1.getPostId());
+					notificationService.createContextAndSave(notification);
+				}
+
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("Failed to store post: " + e.getMessage());
@@ -197,7 +212,6 @@ public class PostServices {
 			Users user = userRepo.findByUserId(post.getUserId());
 			Images image = imageRepo.getReferenceById(post.getImageId());
 
-
 			// 構建 PostResponseDTO，檢查 user 是否為 null
 			if (user != null) {
 				postResponseDTOList.add(new PostResponseDTO(
@@ -216,6 +230,10 @@ public class PostServices {
 	public List<Posts> searchPostsByContent(String searchContent) {
 		// Use the repository method to find posts containing the input content
 		return postRepo.findByContentContainingIgnoreCase(searchContent);
+	}
+
+	public Long postCount() {
+		return postRepo.count();
 	}
 
 }

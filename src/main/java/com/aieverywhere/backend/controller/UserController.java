@@ -194,4 +194,17 @@ public class UserController {
 
 	}
 
+	@GetMapping("/{userId}/email")
+	public ResponseEntity<String> getEmail(@PathVariable Long userId) {
+		try {
+			Users user = usersServices.findByUserId(userId);
+			if (user != null) {
+				return ResponseEntity.ok(user.getEmail());
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("用戶不存在");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("發生錯誤，獲取郵箱失敗");
+		}
+	}
 }
