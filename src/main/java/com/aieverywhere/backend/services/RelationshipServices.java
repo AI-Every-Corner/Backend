@@ -1,5 +1,6 @@
 package com.aieverywhere.backend.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,27 +9,41 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.aieverywhere.backend.dto.FriendsDTO;
+import com.aieverywhere.backend.models.Notifications;
+import com.aieverywhere.backend.models.Notifications.Type;
 import com.aieverywhere.backend.models.Relationship;
 import com.aieverywhere.backend.models.Relationship.RelationshipStatus;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.models.Users.Role;
+import com.aieverywhere.backend.repostories.NotificationRepository;
 import com.aieverywhere.backend.repostories.RelaRepo;
 
 @Service
 public class RelationshipServices {
-	private final RelaRepo relaRepo;
-
-	@Autowired
+	private RelaRepo relaRepo;
 	private UsersServices usersServices;
+	private NotificationRepository notificationRepository;
 
 	@Autowired
-	public RelationshipServices(RelaRepo relaRepo) {
+	public RelationshipServices(RelaRepo relaRepo, UsersServices usersServices,
+			NotificationRepository notificationRepository) {
 		this.relaRepo = relaRepo;
+		this.usersServices = usersServices;
+		this.notificationRepository = notificationRepository;
 	}
 
 	// create follow relationship
 	public String createFollowRelationship(Relationship relationship) {
 		relaRepo.save(relationship);
+
+		// create notification
+		Notifications notification = new Notifications();
+		notification.setSenderId(relationship.getUserId());
+		notification.setType(Type.AddFriend);
+		notification.setCreatedAt(LocalDateTime.now());
+		notification.setUserId(relationship.getFriendId());
+		notificationRepository.save(notification);
+
 		return "create success";
 	}
 
@@ -48,16 +63,15 @@ public class RelationshipServices {
 
 	@Transactional
 	public void deleteRelationship(Long userId, Long friendId) {
-        Long relationship = relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId);
-        if (relationship != null) {
-            relaRepo.deleteByRelationshipId(relationship);
-        } else {
-            throw new RuntimeException("關係不存在");
-        }
-    }
-	
-	
-	public Boolean checkFollowRelationship(Long userId, Long friendId){
+		Long relationship = relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId);
+		if (relationship != null) {
+			relaRepo.deleteByRelationshipId(relationship);
+		} else {
+			throw new RuntimeException("關係不存在");
+		}
+	}
+
+	public Boolean checkFollowRelationship(Long userId, Long friendId) {
 		if (relaRepo.findRelationshipIdByUserIdAndFriendId(userId, friendId) != null) {
 			System.out.println("Following");
 			return true;

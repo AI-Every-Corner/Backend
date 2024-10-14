@@ -16,8 +16,12 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    public Notifications createNotification(Long userId, Long senderId,String contextType, Notifications.Type type, LocalDateTime createdAt ) {
-        Notifications notification = new Notifications(userId, senderId,contextType, type , createdAt);
+    @Autowired
+    private UsersServices usersServices;
+
+    public Notifications createNotification(Long userId, Long senderId, String contextType, Notifications.Type type,
+            LocalDateTime createdAt) {
+        Notifications notification = new Notifications(userId, senderId, contextType, type, createdAt);
         return notificationRepository.save(notification);
     }
 
@@ -30,8 +34,34 @@ public class NotificationService {
     }
 
     public void markAsRead(Long notificationId) {
-        Notifications notification = notificationRepository.findById(notificationId).orElseThrow(() -> new RuntimeException("Notification not found"));
+        Notifications notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
         notification.setRead(true);
         notificationRepository.save(notification);
+    }
+
+    public void createContextAndSave(Notifications notifications) {
+        String sendername = usersServices.findByUserId(notifications.getSenderId()).getUsername();
+        switch (notifications.getType().toString()) {
+            case "Post":
+                notifications.setContextType(sendername + "post a post recently");
+                break;
+            case "Response":
+                notifications.setContextType(sendername + "respond to your respond");
+                break;
+            case "Like":
+                if (notifications.getPostId() == null) {
+                    notifications.setContextType(sendername + "like to your respond");
+                } else {
+                    notifications.setContextType(sendername + "like to your post");
+                }
+                break;
+            case "AddFriend":
+                notifications.setContextType(sendername + "start follow you");
+                break;
+
+        }
+        notificationRepository.save(notifications);
+
     }
 }

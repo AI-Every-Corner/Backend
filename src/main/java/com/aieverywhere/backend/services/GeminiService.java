@@ -58,14 +58,23 @@ public class GeminiService {
 	private final String API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=%s";
 
 	// this postId is for look which post is ai responding to
-	@Scheduled(cron = "0 0 * * * ?") // Every hour, at the start of the hour
-	public String AiRespondPost(Long postId) throws Exception {
+	// @Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
+	public String AiRespondPost() throws Exception {
 
 		// get all the data to send to gemini
-		Posts post = postServices.getPostByPostId(postId);
+		Random random = new Random();
+		Long postCount = postServices.postCount();
+		Posts post = null;
+		boolean check1 = true;
+		while (check1) {
+			post = postServices.getPostByPostId(random.nextLong(postCount) + 1);
+			if (post != null && !post.getContent().isEmpty()) {
+				System.out.println("get post");
+				check1 = false;
+			}
+		}
 		Users realUser = usersServices.getUsersByUsersId(post.getUserId());
 		List<Relationship> friendsList = relationshipServices.getAllUserFriendsWithRole(post.getUserId(), Role.Ai);
-		Random random = new Random();
 		Users aiUser = null;
 		String context;
 		if (friendsList != null && friendsList.isEmpty()) {
@@ -78,24 +87,39 @@ public class GeminiService {
 					check = false;
 				}
 			}
-			context = "this is a post of " + realUser.getNickName() + " content of post is " + post.getContent()
-					+ " post have a post tag " + post.getMoodTag()
-					+ " and its mean the feeling of the user when post this post "
+
+			context = "This is a post by " + realUser.getNickName() + ". The content is: " + post.getContent()
+					+ ". "
+					+ "It has a mood tag: " + post.getMoodTag() + ", reflecting the user's feelings. "
 					+ " and you are a person that scrolling around on social media and you find this post and your personality is "
-					+ aiUser.getPersonality() + " and your emotionlevel is " + aiUser.getEmoLevel()
-					+ "please give me some respond with your personality and respond with Traditional Chinese and less emoji"
-					+ "and if you like the post put 1 first then respond if you dont like put 0";
+					+ aiUser.getPersonality() +
+					" and your emotion level is " + aiUser.getEmoLevel() + ". "
+					+ "Please respond as a friend in Traditional Chinese with fewer emojis. "
+					+ "No need to translate"
+					+ "If you like the post, start with 1; if not, start with 0.";
 
 		} else {
 			Relationship randomFriend = friendsList.get(random.nextInt(friendsList.size()));
 			aiUser = usersServices.getUsersByUsersId(randomFriend.getFriendId());
-			context = "this is a post of " + realUser.getNickName() + " content of post is " + post.getContent()
-					+ " post have a post tag " + post.getMoodTag()
-					+ " and its mean the feeling of the user when post this post "
-					+ " and you are one of his friends and your personality is " + aiUser.getPersonality()
-					+ " and your emotionlevel is " + aiUser.getEmoLevel()
-					+ "please give me some respond as a friend with your personality and respond with Traditional Chinese and less emoji"
-					+ "and if you like the post put 1 first then respond if you dont like put 0";
+			// context = "this is a post of " + realUser.getNickName() + " content of post
+			// is " + post.getContent()
+			// + " post have a post tag " + post.getMoodTag()
+			// + " and its mean the feeling of the user when post this post "
+			// + " and you are one of his friends and your personality is " +
+			// aiUser.getPersonality()
+			// + " and your emotionlevel is " + aiUser.getEmoLevel()
+			// + "please give me some respond as a friend with your personality and respond
+			// with Traditional Chinese and less emoji"
+			// + "and if you like the post put 1 first then respond if you dont like put 0";
+
+			context = "This is a post by " + realUser.getNickName() + ". The content is: " + post.getContent()
+					+ ". "
+					+ "It has a mood tag: " + post.getMoodTag() + ", reflecting the user's feelings. "
+					+ "As one of his friends, your personality is " + aiUser.getPersonality() +
+					" and your emotion level is " + aiUser.getEmoLevel() + ". "
+					+ "Please respond as a friend in Traditional Chinese with fewer emojis. "
+					+ "No need to translate"
+					+ "If you like the post, start with 1; if not, start with 0.";
 
 		}
 
@@ -148,12 +172,16 @@ public class GeminiService {
 			String likeOrNot = contentAndLike.get(1);
 
 			if (likeOrNot.equals("1")) {
-				likesServices.addPostLike(postId, aiUser.getUserId());
+				try {
+					likesServices.addPostLike(post.getPostId(), aiUser.getUserId());
+				} catch (IllegalStateException e) {
+					System.out.println("User has already liked this post");
+				}
 			}
 
 			Responses respond = new Responses();
 			respond.setContent(contentAndLike.get(0));
-			respond.setPostId(postId);
+			respond.setPostId(post.getPostId());
 			respond.setUserId(aiUser.getUserId());
 			responsesServices.createResponse(respond);
 
@@ -173,27 +201,35 @@ public class GeminiService {
 	// on user respond
 	//
 	// if random an AI then send a friend request to add friend after respond
-	@Scheduled(cron = "0 30 * * * ?") // Every hour, at the 30min
-	public String AiRespondToRespond(Long postId) throws Exception {
-
-		Posts post = postServices.getPostByPostId(postId);
+	// @Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
+	public String AiRespondToRespond() throws Exception {
+		Long postCount = postServices.postCount();
+		Random random = new Random();
+		boolean check = true;
+		Posts post = null;
+		while (check) {
+			post = postServices.getPostByPostId(random.nextLong(postCount) + 1);
+			if (post != null) {
+				check = false;
+			}
+		}
 
 		Users realUser = usersServices.getUsersByUsersId(post.getUserId());
 		List<Relationship> friendsList = relationshipServices.getAllUserFriendsWithRole(post.getUserId(), Role.Ai);
-		Random random = new Random();
+
 		Users aiUser = null;
 		String context;
 		if (friendsList != null && friendsList.isEmpty()) {
 			Long usercount = usersServices.getUsersCount();
-
-			boolean check = true;
+			System.out.println("check");
+			check = true;
 			while (check) {
 				aiUser = usersServices.getUsersByUsersId(random.nextLong(usercount) + 1);
 				if (aiUser.getRole().equals(Role.Ai)) {
 					check = false;
 				}
 			}
-			List<Responses> postAllRespond = responsesServices.getAllResponsesByPostId(postId);
+			List<Responses> postAllRespond = responsesServices.getAllResponsesByPostId(post.getPostId());
 			List<Users> allRespondUser = new ArrayList<>();
 			for (Responses respond : postAllRespond) {
 				allRespondUser.add(usersServices.getUsersByUsersId(respond.getUserId()));
@@ -218,19 +254,37 @@ public class GeminiService {
 						+ " you and " + allRespondUser.get(i).getNickName() + areFriendOrNot + "and next respond.");
 			}
 
-			context = "this is a post of " + realUser.getNickName() + " content of post is " + post.getContent()
-					+ " post have a post tag " + post.getMoodTag()
-					+ " and its mean the feeling of the user when post this post and you are a person that scrolling around on social media "
-					+ " and there are some respond of the post maybe you had respond before here are the responses "
-					+ allRespondUserRelationship + "your name is " + aiUser.getNickName() + " and your personality is "
-					+ aiUser.getPersonality() + " and your emotionlevel is " + aiUser.getEmoLevel()
-					+ "please give me some respond with your personality and The emphasis is slightly on "
-					+ realUser.getNickName() + " and respond with Traditional Chinese and less emoji";
+			// context = "this is a post of " + realUser.getNickName() + " content of post
+			// is " + post.getContent()
+			// + " post have a post tag " + post.getMoodTag()
+			// + " and its mean the feeling of the user when post this post and you are a
+			// person that scrolling around on social media "
+			// + " and there are some respond of the post maybe you had respond before here
+			// are the responses "
+			// + allRespondUserRelationship + "your name is " + aiUser.getNickName() + " and
+			// your personality is "
+			// + aiUser.getPersonality() + " and your emotionlevel is " +
+			// aiUser.getEmoLevel()
+			// + "please give me some respond with your personality and The emphasis is
+			// slightly on "
+			// + realUser.getNickName() + " and respond with Traditional Chinese and less
+			// emoji";
+
+			context = "This is a post by " + realUser.getNickName() + " with content: " + post.getContent() + ". "
+					+ "The post includes a mood tag: " + post.getMoodTag()
+					+ ", which reflects the user's feelings when posting. "
+					+ "You are scrolling through social media, and there are some responses to this post, maybe you've responded before. "
+					+ "Here are the responses: " + allRespondUserRelationship + ". Your name is " + aiUser.getNickName()
+					+ ", "
+					+ "your personality is " + aiUser.getPersonality() + ", and your emotion level is "
+					+ aiUser.getEmoLevel() + ". "
+					+ "Please respond based on your personality, with a slight emphasis on " + realUser.getNickName()
+					+ ". Respond in Traditional Chinese with fewer emojis and only response .";
 
 		} else {
 			Relationship randomFriend = friendsList.get(random.nextInt(friendsList.size()));
 			aiUser = usersServices.getUsersByUsersId(randomFriend.getFriendId());
-			List<Responses> postAllRespond = responsesServices.getAllResponsesByPostId(postId);
+			List<Responses> postAllRespond = responsesServices.getAllResponsesByPostId(post.getPostId());
 			List<Users> allRespondUser = new ArrayList<>();
 			for (Responses respond : postAllRespond) {
 				allRespondUser.add(usersServices.getUsersByUsersId(respond.getUserId()));
@@ -261,8 +315,8 @@ public class GeminiService {
 					+ "'s friend and there are some respond of the post maybe you had respond before here are the responses "
 					+ allRespondUserRelationship + " your name is " + aiUser.getNickName() + " and your personality is "
 					+ aiUser.getPersonality() + " and your emotionlevel is " + aiUser.getEmoLevel()
-					+ "please give me some respond with your personality and The emphasis is slightly on "
-					+ realUser.getNickName() + " and respond with Traditional Chinese and less emoji";
+					+ " please give me some respond with your personality and The emphasis is slightly on "
+					+ realUser.getNickName() + " Respond in Traditional Chinese with fewer emojis and only response .";
 
 		}
 		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
@@ -313,7 +367,7 @@ public class GeminiService {
 
 			Responses respond = new Responses();
 			respond.setContent(respondFromGemini);
-			respond.setPostId(postId);
+			respond.setPostId(post.getPostId());
 			respond.setUserId(aiUser.getUserId());
 			responsesServices.createResponse(respond);
 
@@ -331,7 +385,7 @@ public class GeminiService {
 	// get the respond and fill the post object
 	// and save to the post
 	// this is for ai to create a post
-	@Scheduled(cron = "0 40 * * * ?")
+	// @Scheduled(cron = "* * */10 * * ?")
 	public String aiCreatePost() throws Exception {
 		// get random ai user
 		Random random = new Random();

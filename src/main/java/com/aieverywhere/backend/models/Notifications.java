@@ -15,12 +15,14 @@ public class Notifications {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long notificationId;
 	private Long userId;
+	private Long postId;
+	private Long respondId;
 	private Long senderId;
 	private String contextType;
 	@Enumerated(EnumType.STRING)
 	private Type type;
 	// true mean read false mean unread
-	private boolean isRead;
+	private boolean isRead = false;
 	private LocalDateTime createdAt;
 
 	public Notifications() {
@@ -32,7 +34,6 @@ public class Notifications {
 		this.senderId = senderId;
 		this.contextType = contextType;
 		this.type = type;
-		this.isRead = false;
 		this.createdAt = createdAt;
 	}
 
@@ -94,6 +95,22 @@ public class Notifications {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Long getPostId() {
+		return postId;
+	}
+
+	public void setPostId(Long postId) {
+		this.postId = postId;
+	}
+
+	public Long getRespondId() {
+		return respondId;
+	}
+
+	public void setRespondId(Long respondId) {
+		this.respondId = respondId;
 	}
 
 }

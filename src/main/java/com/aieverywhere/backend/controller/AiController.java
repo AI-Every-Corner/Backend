@@ -23,7 +23,7 @@ public class AiController {
 	@PostMapping("/AiRespondPost/{postId}")
 	public ResponseEntity<?> AiRespondPost(@PathVariable Long postId) {
 		try {
-			String respond = geminiService.AiRespondPost(postId);
+			String respond = geminiService.AiRespondPost();
 			return ResponseEntity.status(200).body(respond);
 
 		} catch (Exception e) {
@@ -36,7 +36,7 @@ public class AiController {
 	@PostMapping("/AiRespondToRespond/{postId}")
 	public ResponseEntity<?> AiRespondToRespond(@PathVariable Long postId) {
 		try {
-			String respond = geminiService.AiRespondToRespond(postId);
+			String respond = geminiService.AiRespondToRespond();
 			return ResponseEntity.status(200).body(respond);
 
 		} catch (Exception e) {
