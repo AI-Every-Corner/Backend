@@ -13,8 +13,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.dto.RespResponseDTO;
+import com.aieverywhere.backend.models.Likes;
 import com.aieverywhere.backend.models.Responses;
 import com.aieverywhere.backend.models.Users;
+import com.aieverywhere.backend.repostories.LikeRepo;
+import com.aieverywhere.backend.repostories.LikeSpecifications;
 import com.aieverywhere.backend.repostories.RespRepo;
 import com.aieverywhere.backend.repostories.RespSpecifications;
 import com.aieverywhere.backend.repostories.UserRepo;
@@ -25,6 +28,7 @@ public class ResponsesServices {
     @Autowired
     private RespRepo respRepo;
     private UserRepo userRepo;
+    private LikeRepo likeRepo;
 
     public ResponsesServices(RespRepo respRepo, UserRepo userRepo) {
         this.respRepo = respRepo;
@@ -33,6 +37,9 @@ public class ResponsesServices {
 
     // Create a new response
     public Responses createResponse(Responses response) {
+    	Specification<Likes> spec = Specification.where(LikeSpecifications.hasResponseId(response.getResponseId()));
+    	Long likes = likeRepo.count(spec);
+    	response.setLikes(likes);
         response.setCreatedAt(LocalDateTime.now());
         response.setUpdateAt(LocalDateTime.now());
         return respRepo.save(response);
