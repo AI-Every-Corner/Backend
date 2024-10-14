@@ -24,6 +24,8 @@ import com.aieverywhere.backend.models.Relationship;
 import com.aieverywhere.backend.models.Responses;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.models.Users.Role;
+import com.aieverywhere.backend.repostories.PostRepo;
+import com.aieverywhere.backend.repostories.UserRepo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -34,22 +36,22 @@ public class GeminiService {
 	@Value("${gemini.key}")
 	private String apiKey;
 
-	private RestTemplate restTemplate;
-	private PostServices postServices;
-	private RelationshipServices relationshipServices;
-	private UsersServices usersServices;
-	private LikesServices likesServices;
-	private ResponsesServices responsesServices;
-	private ImagesServices imagesService;
+	private final RestTemplate restTemplate;
+	private final PostRepo postRepo;
+	private final RelationshipServices relationshipServices;
+	private final UserRepo userRepo;
+	private final LikesServices likesServices;
+	private final ResponsesServices responsesServices;
+	private final ImagesServices imagesService;
 
 	@Autowired
-	public GeminiService(RestTemplate restTemplate, PostServices postServices,
-			RelationshipServices relationshipServices, UsersServices usersServices, LikesServices likesServices,
+	public GeminiService(RestTemplate restTemplate, PostRepo postRepo,
+			RelationshipServices relationshipServices, UserRepo userRepo, LikesServices likesServices,
 			ResponsesServices responsesServices, ImagesServices imagesService) {
 		this.restTemplate = restTemplate;
-		this.postServices = postServices;
+		this.postRepo = postRepo;
 		this.relationshipServices = relationshipServices;
-		this.usersServices = usersServices;
+		this.userRepo = userRepo;
 		this.likesServices = likesServices;
 		this.responsesServices = responsesServices;
 		this.imagesService = imagesService;
@@ -63,26 +65,26 @@ public class GeminiService {
 
 		// get all the data to send to gemini
 		Random random = new Random();
-		Long postCount = postServices.postCount();
+		Long postCount = postRepo.count();
 		Posts post = null;
 		boolean check1 = true;
 		while (check1) {
-			post = postServices.getPostByPostId(random.nextLong(postCount) + 1);
+			post = postRepo.findByPostId(random.nextLong(postCount) + 1);
 			if (post != null && !post.getContent().isEmpty()) {
 				System.out.println("get post");
 				check1 = false;
 			}
 		}
-		Users realUser = usersServices.getUsersByUsersId(post.getUserId());
+		Users realUser = userRepo.findByUserId(post.getUserId());
 		List<Relationship> friendsList = relationshipServices.getAllUserFriendsWithRole(post.getUserId(), Role.Ai);
 		Users aiUser = null;
 		String context;
 		if (friendsList != null && friendsList.isEmpty()) {
-			Long usercount = usersServices.getUsersCount();
+			Long usercount = userRepo.count();
 
 			boolean check = true;
 			while (check) {
-				aiUser = usersServices.getUsersByUsersId(random.nextLong(usercount) + 1);
+				aiUser = userRepo.findByUserId(random.nextLong(usercount) + 1);
 				if (aiUser.getRole().equals(Role.Ai)) {
 					check = false;
 				}
@@ -100,7 +102,7 @@ public class GeminiService {
 
 		} else {
 			Relationship randomFriend = friendsList.get(random.nextInt(friendsList.size()));
-			aiUser = usersServices.getUsersByUsersId(randomFriend.getFriendId());
+			aiUser = userRepo.findByUserId(randomFriend.getFriendId());
 			// context = "this is a post of " + realUser.getNickName() + " content of post
 			// is " + post.getContent()
 			// + " post have a post tag " + post.getMoodTag()
@@ -203,28 +205,28 @@ public class GeminiService {
 	// if random an AI then send a friend request to add friend after respond
 	// @Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
 	public String AiRespondToRespond() throws Exception {
-		Long postCount = postServices.postCount();
+		Long postCount = postRepo.count();
 		Random random = new Random();
 		boolean check = true;
 		Posts post = null;
 		while (check) {
-			post = postServices.getPostByPostId(random.nextLong(postCount) + 1);
+			post = postRepo.findByPostId(random.nextLong(postCount) + 1);
 			if (post != null) {
 				check = false;
 			}
 		}
 
-		Users realUser = usersServices.getUsersByUsersId(post.getUserId());
+		Users realUser = userRepo.findByUserId(post.getUserId());
 		List<Relationship> friendsList = relationshipServices.getAllUserFriendsWithRole(post.getUserId(), Role.Ai);
 
 		Users aiUser = null;
 		String context;
 		if (friendsList != null && friendsList.isEmpty()) {
-			Long usercount = usersServices.getUsersCount();
+			Long usercount = userRepo.count();
 			System.out.println("check");
 			check = true;
 			while (check) {
-				aiUser = usersServices.getUsersByUsersId(random.nextLong(usercount) + 1);
+				aiUser = userRepo.findByUserId(random.nextLong(usercount) + 1);
 				if (aiUser.getRole().equals(Role.Ai)) {
 					check = false;
 				}
@@ -232,7 +234,7 @@ public class GeminiService {
 			List<Responses> postAllRespond = responsesServices.getAllResponsesByPostId(post.getPostId());
 			List<Users> allRespondUser = new ArrayList<>();
 			for (Responses respond : postAllRespond) {
-				allRespondUser.add(usersServices.getUsersByUsersId(respond.getUserId()));
+				allRespondUser.add(userRepo.findByUserId(respond.getUserId()));
 			}
 			List<Boolean> allUserRelationship = new ArrayList<>();
 			for (Users user : allRespondUser) {
@@ -283,11 +285,11 @@ public class GeminiService {
 
 		} else {
 			Relationship randomFriend = friendsList.get(random.nextInt(friendsList.size()));
-			aiUser = usersServices.getUsersByUsersId(randomFriend.getFriendId());
+			aiUser = userRepo.findByUserId(randomFriend.getFriendId());
 			List<Responses> postAllRespond = responsesServices.getAllResponsesByPostId(post.getPostId());
 			List<Users> allRespondUser = new ArrayList<>();
 			for (Responses respond : postAllRespond) {
-				allRespondUser.add(usersServices.getUsersByUsersId(respond.getUserId()));
+				allRespondUser.add(userRepo.findByUserId(respond.getUserId()));
 			}
 			List<Boolean> allUserRelationship = new ArrayList<>();
 			for (Users user : allRespondUser) {
@@ -390,10 +392,10 @@ public class GeminiService {
 		// get random ai user
 		Random random = new Random();
 		Users aiUser = null;
-		Long usercount = usersServices.getUsersCount();
+		Long usercount = userRepo.count();
 		boolean check = true;
 		while (check) {
-			aiUser = usersServices.getAiUsersByUsersId(random.nextLong(usercount) + 1);
+			aiUser = userRepo.findByUserId(random.nextLong(usercount) + 1);
 			if (aiUser.getRole().equals(Role.Ai)) {
 				check = false;
 			}
@@ -483,7 +485,7 @@ public class GeminiService {
 			post.setLikes(0L);
 			post.setMoodScore(Long.parseLong(respondFromGemini.split(" ")[1]));
 			post.setMoodTag(respondFromGemini.split(" ")[0]);
-			postServices.createPost(post, null);
+			postRepo.save(post);
 
 			return respondFromGemini;
 		} catch (HttpClientErrorException e) {
@@ -492,6 +494,64 @@ public class GeminiService {
 			throw new RuntimeException("API call failed: " + e.getMessage());
 		}
 
+	}
+
+	// this is use post content to generate a mood score
+	public Long generateMoodScore(String postContent) {
+		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + apiKey); // Include your API key
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode requestBodyNode = objectMapper.createObjectNode();
+
+		ArrayNode contentsArray = objectMapper.createArrayNode();
+		ObjectNode contentNode = objectMapper.createObjectNode();
+		ArrayNode partsArray = objectMapper.createArrayNode();
+
+		ObjectNode partNode = objectMapper.createObjectNode();
+
+		String context = " this is a post give me a number of between 1~10,reflecting the user's feelings. " +
+				" here is the post " + postContent + " just return a number nothing else";
+
+		partNode.put("text", context); // Only include the text prompt
+
+		partsArray.add(partNode);
+		contentNode.set("parts", partsArray);
+		contentsArray.add(contentNode);
+
+		requestBodyNode.set("contents", contentsArray);
+
+		String requestBody;
+
+		try {
+			requestBody = objectMapper.writeValueAsString(requestBodyNode);
+			System.out.println(requestBody);
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to construct JSON request body", e);
+		}
+
+		HttpEntity<String> request = new HttpEntity<>(requestBody);
+		System.out.println("Request Body: " + request.toString());
+
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
+
+			String responseBody = response.getBody();
+			if (responseBody == null) {
+				throw new RuntimeException("Received empty response from API");
+			}
+
+			String respondFromGemini = extractTextFromRespond(responseBody);
+			return Long.parseLong(respondFromGemini);
+		} catch (HttpClientErrorException e) {
+			// Log the error response for debugging
+			System.err.println("Error response: " + e.getResponseBodyAsString());
+			throw new RuntimeException("API call failed: " + e.getMessage());
+		}
 	}
 
 	// is use for extract the respond that gemini return
