@@ -196,7 +196,6 @@ public class PostServices {
 			Users user = userRepo.findByUserId(post.getUserId());
 			Images image = imageRepo.getReferenceById(post.getImageId());
 
-
 			// 構建 PostResponseDTO，檢查 user 是否為 null
 			if (user != null) {
 				postResponseDTOList.add(new PostResponseDTO(
@@ -215,6 +214,10 @@ public class PostServices {
 	public List<Posts> searchPostsByContent(String searchContent) {
 		// Use the repository method to find posts containing the input content
 		return postRepo.findByContentContainingIgnoreCase(searchContent);
+	}
+
+	public Long postCount() {
+		return postRepo.count();
 	}
 
 }
