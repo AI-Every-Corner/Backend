@@ -76,4 +76,15 @@ public class LikeController {
 	        return ResponseEntity.status(500).body("Failed to get postIds: " + e.getMessage());
 	    }
 	}
+	
+	@GetMapping("responses/getLikedResponseIds/{userId}")
+	public ResponseEntity<?> getLikedResponseIds(@PathVariable Long userId) {
+		try {
+			List<Likes> respIds = likesServices.getLikedResponseIdsByUserId(userId);
+	        return ResponseEntity.status(200).body(respIds);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(500).body("Failed to get postIds: " + e.getMessage());
+	    }
+	}
 }

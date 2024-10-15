@@ -9,23 +9,19 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.aieverywhere.backend.dto.RespResponseDTO;
-<<<<<<< HEAD
 import com.aieverywhere.backend.models.Likes;
 import com.aieverywhere.backend.models.Responses;
 import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.LikeRepo;
 import com.aieverywhere.backend.repostories.LikeSpecifications;
-=======
 import com.aieverywhere.backend.models.Notifications;
 import com.aieverywhere.backend.models.Notifications.Type;
-import com.aieverywhere.backend.models.Responses;
-import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.repostories.PostRepo;
->>>>>>> 3e65a3c30d1437954072f1970bcb0175d129c863
 import com.aieverywhere.backend.repostories.RespRepo;
 import com.aieverywhere.backend.repostories.RespSpecifications;
 import com.aieverywhere.backend.repostories.UserRepo;
@@ -36,25 +32,26 @@ public class ResponsesServices {
     @Autowired
     private RespRepo respRepo;
     private UserRepo userRepo;
-<<<<<<< HEAD
-    private LikeRepo likeRepo;
-=======
     private PostRepo postRepo;
+    private LikeRepo likeRepo;
     private NotificationService notificationService;
->>>>>>> 3e65a3c30d1437954072f1970bcb0175d129c863
 
-    public ResponsesServices(RespRepo respRepo, UserRepo userRepo, PostRepo postRepo,
-            NotificationService notificationService) {
-        this.respRepo = respRepo;
-        this.userRepo = userRepo;
-        this.postRepo = postRepo;
-        this.notificationService = notificationService;
-    }
+    public ResponsesServices(RespRepo respRepo, UserRepo userRepo, PostRepo postRepo, LikeRepo likeRepo,
+			NotificationService notificationService) {
+		this.respRepo = respRepo;
+		this.userRepo = userRepo;
+		this.postRepo = postRepo;
+		this.likeRepo = likeRepo;
+		this.notificationService = notificationService;
+	}
 
-    // Create a new response
+	// Create a new response
     public Responses createResponse(Responses response) {
+    	System.out.println("Service received content: " + response.getContent());
+        
     	Specification<Likes> spec = Specification.where(LikeSpecifications.hasResponseId(response.getResponseId()));
-    	Long likes = likeRepo.count(spec);
+//    	Long likes = likeRepo.count(spec);
+    	Long likes = 0L;
     	response.setLikes(likes);
         response.setCreatedAt(LocalDateTime.now());
         response.setUpdateAt(LocalDateTime.now());
@@ -71,8 +68,7 @@ public class ResponsesServices {
 
     // Read all responses
     public Map<String, Object> getPagedResponsesByPostId(Long postId, int page, int size) {
-        Specification<Responses> resSpec = RespSpecifications.hasPostId(postId);
-        Page<Responses> respPage = respRepo.findAll(resSpec, PageRequest.of(page, size));
+        Page<Responses> respPage = respRepo.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updateAt")));
 
         List<RespResponseDTO> respList = new ArrayList<>();
         for (Responses resp : respPage) {
@@ -113,6 +109,15 @@ public class ResponsesServices {
     // Read a single response by ID
     public Responses getResponseById(Long id) {
         return respRepo.getReferenceById(id);
+    }
+    
+    public List<Responses> getResponseListById(Long id) {
+        Responses response =  respRepo.getReferenceById(id);
+        
+        List<Responses> list = new ArrayList<Responses>();
+        list.add(response);
+        
+        return list;
     }
 
     // Update an existing response

@@ -1,11 +1,13 @@
 package com.aieverywhere.backend.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -39,10 +41,13 @@ public class ResponsesController {
 	
 	@PostMapping("createResponse")
 	public ResponseEntity<?> createResponse(
-			@RequestPart("response") Responses response) {
+			@RequestBody Responses response) {
 		try {
+	        System.out.println("Received response object: " + response);
+	        System.out.println("content: " + response.getContent());
 			respServ.createResponse(response);
-			return ResponseEntity.status(201).body("Post created successfully");
+			List<Responses> newResp = respServ.getResponseListById(response.getResponseId());
+			return ResponseEntity.status(201).body(newResp);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(500).body("Failed to create post: " + e.getMessage());
