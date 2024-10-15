@@ -68,7 +68,8 @@ public class ResponsesServices {
 
     // Read all responses
     public Map<String, Object> getPagedResponsesByPostId(Long postId, int page, int size) {
-        Page<Responses> respPage = respRepo.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updateAt")));
+        Specification<Responses> spec = RespSpecifications.hasPostId(postId);
+        Page<Responses> respPage = respRepo.findAll(spec, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updateAt")));
 
         List<RespResponseDTO> respList = new ArrayList<>();
         for (Responses resp : respPage) {
