@@ -1,5 +1,6 @@
 package com.aieverywhere.backend.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aieverywhere.backend.dto.NotificationRequest;
 import com.aieverywhere.backend.models.Notifications;
+import com.aieverywhere.backend.models.Users;
 import com.aieverywhere.backend.services.NotificationService;
+import com.aieverywhere.backend.services.UsersServices;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -24,6 +27,10 @@ public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UsersServices usersServices;
+
 
     @PostMapping
     public ResponseEntity<Notifications> createNotification(@RequestBody NotificationRequest notificationRequest) {
@@ -40,13 +47,36 @@ public class NotificationController {
      @GetMapping("/unread-count/{userId}")
     public ResponseEntity<Long> getUnreadNotificationCount(@PathVariable Long userId) {
         Long unreadCount = notificationService.getUnreadNotificationCount(userId);
+        
         return ResponseEntity.ok(unreadCount);
     }
 
     @GetMapping("/unread/{userId}")
-    public ResponseEntity<List<Notifications>> getUnreadNotifications(@PathVariable Long userId, @RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<?> getUnreadNotifications(@PathVariable Long userId, @RequestParam int page, @RequestParam int size) {
         List<Notifications> unreadNotifications = notificationService.getUnreadNotifications(userId, page, size);
-        return ResponseEntity.ok(unreadNotifications);
+        List<NotificationRequest> notificationRequests = new ArrayList<>();
+        try {
+            for (Notifications notifications : unreadNotifications) {
+                NotificationRequest request = new NotificationRequest();
+                request.setNotificationId(notifications.getNotificationId());
+                request.setUserId(notifications.getUserId());
+                request.setSenderId(notifications.getSenderId());
+
+                Users sender = usersServices.getUsersByUsersId(notifications.getSenderId());
+                request.setUsername(sender.getUsername());
+                request.setImagepath(sender.getImagePath());
+                
+                request.setContextType(notifications.getContextType());
+                request.setCreatedAt(notifications.getCreatedAt());
+                notificationRequests.add(request);
+            }
+            return ResponseEntity.ok(notificationRequests);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body("failed to get unread notifications");
+        }
+        
+        
     }
 
     @PutMapping("/mark-as-read/{notificationId}")

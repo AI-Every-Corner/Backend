@@ -24,6 +24,7 @@ public class Notifications {
 	// true mean read false mean unread
 	private boolean isRead = false;
 	private LocalDateTime createdAt;
+    public char[] getSenderId;
 
 	public Notifications() {
 
