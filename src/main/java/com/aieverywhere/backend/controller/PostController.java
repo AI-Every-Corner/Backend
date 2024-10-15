@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -88,26 +89,28 @@ public class PostController {
 	@GetMapping("search")
 	public ResponseEntity<?> getPostsOrFriendsByContext(
 			@RequestParam(value = "searchcontext", required = false) String searchContent,
-			@RequestParam(value = "post", required = false) String post,
-			@RequestParam(value = "user", required = false) String user) {
+			@RequestParam(value = "type", required = false) String type) {
 
 		try {
-			if (user == "") {
-				List<Posts> posts = postServices.searchPostsByContent(searchContent);
-				return ResponseEntity.status(200).body(posts);
+			if (type == null || type.isEmpty()) {
+				return ResponseEntity.badRequest().body("Search type is required");
+			}
 
-			} else {
+			if ("post".equalsIgnoreCase(type)) {
+				List<Posts> posts = postServices.searchPostsByContent(searchContent);
+				return ResponseEntity.ok(posts);
+			} else if ("user".equalsIgnoreCase(type)) {
 				List<Users> users = usersServices.searchAndRemoveDuplicates(searchContent);
-				return ResponseEntity.status(200).body(users);
+				return ResponseEntity.ok(users);
+			} else {
+				return ResponseEntity.badRequest().body("Invalid search type");
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.status(500).body("Failed to retrieve posts: " +
-					e.getMessage());
-
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Failed to retrieve data: " + e.getMessage());
 		}
-
 	}
 
 }

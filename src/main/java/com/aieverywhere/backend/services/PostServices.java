@@ -30,22 +30,24 @@ import com.aieverywhere.backend.repostories.UserRepo;
 
 @Service
 public class PostServices {
-	private PostRepo postRepo;
-	private UserRepo userRepo;
-	private ImageRepo imageRepo;
-	private RelaRepo relaRepo;
-	private ImagesServices imagesServices;
-	private NotificationService notificationService;
+	private final PostRepo postRepo;
+	private final UserRepo userRepo;
+	private final ImageRepo imageRepo;
+	private final RelaRepo relaRepo;
+	private final ImagesServices imagesServices;
+	private final NotificationService notificationService;
+	private final GeminiService geminiService;
 
 	@Autowired
 	public PostServices(PostRepo postRepo, UserRepo userRepo, ImageRepo imageRepo, RelaRepo relaRepo,
-			ImagesServices imagesServices, NotificationService notificationService) {
+			ImagesServices imagesServices, NotificationService notificationService, GeminiService geminiService) {
 		this.postRepo = postRepo;
 		this.userRepo = userRepo;
 		this.imageRepo = imageRepo;
 		this.relaRepo = relaRepo;
 		this.imagesServices = imagesServices;
 		this.notificationService = notificationService;
+		this.geminiService = geminiService;
 	}
 
 	public void createPost(Posts post, MultipartFile imageFile) {
@@ -57,6 +59,7 @@ public class PostServices {
 				image.setIsUploadByUser(true);
 				imagesServices.createImage(image);
 				post.setImageId(image.getImageId());
+				post.setMoodScore(geminiService.generateMoodScore(post.getContent()));
 			}
 			post.setCreatedAt(LocalDateTime.now());
 			post.setUpdatedAt(LocalDateTime.now());
