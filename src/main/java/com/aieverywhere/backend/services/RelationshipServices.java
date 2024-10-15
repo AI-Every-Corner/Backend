@@ -23,13 +23,15 @@ public class RelationshipServices {
 	private RelaRepo relaRepo;
 	private UsersServices usersServices;
 	private NotificationRepository notificationRepository;
+	private NotificationService notificationService;
 
 	@Autowired
 	public RelationshipServices(RelaRepo relaRepo, UsersServices usersServices,
-			NotificationRepository notificationRepository) {
+			NotificationRepository notificationRepository, NotificationService notificationService) {
 		this.relaRepo = relaRepo;
 		this.usersServices = usersServices;
 		this.notificationRepository = notificationRepository;
+		this.notificationService = notificationService;
 	}
 
 	// create follow relationship
@@ -42,6 +44,7 @@ public class RelationshipServices {
 		notification.setType(Type.AddFriend);
 		notification.setCreatedAt(LocalDateTime.now());
 		notification.setUserId(relationship.getFriendId());
+		notificationService.createContextAndSave(notification);
 		notificationRepository.save(notification);
 
 		return "create success";

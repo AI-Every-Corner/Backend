@@ -44,20 +44,20 @@ public class NotificationService {
         String sendername = usersServices.findByUserId(notifications.getSenderId()).getUsername();
         switch (notifications.getType().toString()) {
             case "Post":
-                notifications.setContextType(sendername + "post a post recently");
+                notifications.setContextType(sendername + " post a post recently");
                 break;
             case "Response":
-                notifications.setContextType(sendername + "respond to your respond");
+                notifications.setContextType(sendername + " respond to your respond");
                 break;
             case "Like":
                 if (notifications.getPostId() == null) {
-                    notifications.setContextType(sendername + "like to your respond");
+                    notifications.setContextType(sendername + " like to your respond");
                 } else {
-                    notifications.setContextType(sendername + "like to your post");
+                    notifications.setContextType(sendername + " like to your post");
                 }
                 break;
             case "AddFriend":
-                notifications.setContextType(sendername + "start follow you");
+                notifications.setContextType(sendername + " start follow you");
                 break;
 
         }
