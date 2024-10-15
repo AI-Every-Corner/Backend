@@ -1,5 +1,6 @@
 package com.aieverywhere.backend.services;
 
+import java.util.List;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,16 +87,15 @@ public class LikesServices {
 			throw new EntityNotFoundException("Like not found for the given post or user");
 		}
 	}
-
-	public void addRespondLike(Long respId, Long postId, Long userId) {
-		// Check if the user has already liked the post
-		if (likeRepo.existsByResponseIdAndPostIdAndUserId(respId, postId, userId)) {
-			throw new IllegalStateException("User has already liked this post");
+	
+	public void addRespondLike(Long respId, Long userId) {
+	    // Check if the user has already liked the post
+		if (likeRepo.existsByResponseIdAndUserId(respId, userId)) {
+		    throw new IllegalStateException("User has already liked this post");
 		}
 
 		// Add the like
 		Likes like = new Likes();
-		like.setPostId(postId);
 		like.setResponseId(respId);
 		like.setUserId(userId);
 		likeRepo.save(like);
@@ -118,14 +118,14 @@ public class LikesServices {
 	}
 
 	@Transactional
-	public void removeRespondLike(Long postId, Long responseId, Long userId) {
-		if (likeRepo.existsByResponseIdAndPostIdAndUserId(responseId, postId, userId)) {
-			Specification<Likes> likeSpec = Specification.where(LikeSpecifications.hasPostId(postId))
-					.and(LikeSpecifications.hasResponseId(responseId))
-					.and(LikeSpecifications.hasUserId(userId));
-
-			Likes like = likeRepo.findOne(likeSpec)
-					.orElseThrow(() -> new EntityNotFoundException("Like not found"));
+	public void removeRespondLike(Long responseId, Long userId) {
+		if (likeRepo.existsByResponseIdAndUserId(responseId, userId)) {
+	        Specification<Likes> likeSpec = Specification
+	        		.where(LikeSpecifications.hasResponseId(responseId))
+	                .and(LikeSpecifications.hasUserId(userId));
+	        
+	        Likes like = likeRepo.findOne(likeSpec)
+	            .orElseThrow(() -> new EntityNotFoundException("Like not found"));
 
 			// Delete the like
 			likeRepo.delete(like);
@@ -140,5 +140,14 @@ public class LikesServices {
 			throw new EntityNotFoundException("Like not found for the given post, response, or user");
 		}
 	}
-
+	
+	public List<Likes> getLikedPostIdsByUserId(Long userId) {
+		Specification<Likes> spec = LikeSpecifications.hasUserId(userId);
+		return likeRepo.findAll(spec);
+	}
+	
+	public List<Likes> getLikedResponseIdsByUserId(Long userId) {
+		Specification<Likes> spec = LikeSpecifications.hasUserId(userId);
+		return likeRepo.findAll(spec);
+	}
 }

@@ -8,6 +8,6 @@ import com.aieverywhere.backend.models.Responses;
 
 public interface RespRepo extends JpaRepository<Responses, Long>, JpaSpecificationExecutor<Responses> {
 
-    Likes findByResponseId(Long respId);
+    Responses findByResponseId(Long respId);
 
 }

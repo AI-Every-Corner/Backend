@@ -11,5 +11,5 @@ public interface LikeRepo extends JpaRepository<Likes, Long>, JpaSpecificationEx
 
     boolean existsByPostIdAndUserId(Long postId, Long userId);
 
-    boolean existsByResponseIdAndPostIdAndUserId(Long responseId, Long postId, Long userId);
+    boolean existsByResponseIdAndUserId(Long responseId, Long userId);
 }

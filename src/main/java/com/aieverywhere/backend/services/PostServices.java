@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,7 +108,7 @@ public class PostServices {
 	}
 
 	public Map<String, Object> getAllPagedPosts(int page, int size) {
-		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size));
+		Page<Posts> postsPage = postRepo.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
 
 		List<PostResponseDTO> postsList = new ArrayList<>();
 		for (Posts post : postsPage) {
