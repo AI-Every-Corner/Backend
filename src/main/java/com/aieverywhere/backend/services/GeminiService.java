@@ -1,5 +1,6 @@
 package com.aieverywhere.backend.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +61,7 @@ public class GeminiService {
 	private final String API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=%s";
 
 	// this postId is for look which post is ai responding to
-	// @Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
+	@Scheduled(cron = "* */3 * * * ?") // Every hour, at the 30min
 	public String AiRespondPost() throws Exception {
 
 		// get all the data to send to gemini
@@ -85,7 +86,7 @@ public class GeminiService {
 			boolean check = true;
 			while (check) {
 				aiUser = userRepo.findByUserId(random.nextLong(usercount) + 1);
-				if (aiUser.getRole().equals(Role.Ai)) {
+				if (aiUser != null && aiUser.getRole().equals(Role.Ai)) {
 					check = false;
 				}
 			}
@@ -203,7 +204,7 @@ public class GeminiService {
 	// on user respond
 	//
 	// if random an AI then send a friend request to add friend after respond
-	// @Scheduled(cron = "*/10 * * * * ?") // Every hour, at the 30min
+	@Scheduled(cron = "* */5 * * * ?") // Every hour, at the 30min
 	public String AiRespondToRespond() throws Exception {
 		Long postCount = postRepo.count();
 		Random random = new Random();
@@ -256,21 +257,6 @@ public class GeminiService {
 						+ " you and " + allRespondUser.get(i).getNickName() + areFriendOrNot + "and next respond.");
 			}
 
-			// context = "this is a post of " + realUser.getNickName() + " content of post
-			// is " + post.getContent()
-			// + " post have a post tag " + post.getMoodTag()
-			// + " and its mean the feeling of the user when post this post and you are a
-			// person that scrolling around on social media "
-			// + " and there are some respond of the post maybe you had respond before here
-			// are the responses "
-			// + allRespondUserRelationship + "your name is " + aiUser.getNickName() + " and
-			// your personality is "
-			// + aiUser.getPersonality() + " and your emotionlevel is " +
-			// aiUser.getEmoLevel()
-			// + "please give me some respond with your personality and The emphasis is
-			// slightly on "
-			// + realUser.getNickName() + " and respond with Traditional Chinese and less
-			// emoji";
 
 			context = "This is a post by " + realUser.getNickName() + " with content: " + post.getContent() + ". "
 					+ "The post includes a mood tag: " + post.getMoodTag()
@@ -281,7 +267,7 @@ public class GeminiService {
 					+ "your personality is " + aiUser.getPersonality() + ", and your emotion level is "
 					+ aiUser.getEmoLevel() + ". "
 					+ "Please respond based on your personality, with a slight emphasis on " + realUser.getNickName()
-					+ ". Respond in Traditional Chinese with fewer emojis and only response .";
+					+ ". Respond in Traditional Chinese with fewer emojis and only response No need to translate.";
 
 		} else {
 			Relationship randomFriend = friendsList.get(random.nextInt(friendsList.size()));
@@ -318,7 +304,7 @@ public class GeminiService {
 					+ allRespondUserRelationship + " your name is " + aiUser.getNickName() + " and your personality is "
 					+ aiUser.getPersonality() + " and your emotionlevel is " + aiUser.getEmoLevel()
 					+ " please give me some respond with your personality and The emphasis is slightly on "
-					+ realUser.getNickName() + " Respond in Traditional Chinese with fewer emojis and only response .";
+					+ realUser.getNickName() + " Respond in Traditional Chinese with fewer emojis and only response No need to translate.";
 
 		}
 		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
@@ -387,7 +373,7 @@ public class GeminiService {
 	// get the respond and fill the post object
 	// and save to the post
 	// this is for ai to create a post
-	// @Scheduled(cron = "* * */10 * * ?")
+	@Scheduled(cron = "* */7 * * * ?")
 	public String aiCreatePost() throws Exception {
 		// get random ai user
 		Random random = new Random();
@@ -396,7 +382,7 @@ public class GeminiService {
 		boolean check = true;
 		while (check) {
 			aiUser = userRepo.findByUserId(random.nextLong(usercount) + 1);
-			if (aiUser.getRole().equals(Role.Ai)) {
+			if (aiUser!= null && aiUser.getRole().equals(Role.Ai)) {
 				check = false;
 			}
 		}
@@ -404,12 +390,13 @@ public class GeminiService {
 		Long countSum = imagesService.getUseCountSumNotUserUpload();
 		Long picSum = imagesService.getPicUseByAi();
 		Double averUseCount = (countSum.doubleValue() / picSum.doubleValue());
+		System.out.println(averUseCount);
 		Long imageCount = imagesService.getPicCount();
 		Images image = null;
 		check = true;
 		while (check) {
 			image = imagesService.findImageByIdForAi(random.nextLong(imageCount) + 1);
-			if (!image.getIsUploadByUser() && image.getUseCount().doubleValue() < averUseCount) {
+			if (image != null && !image.getIsUploadByUser() && image.getUseCount().doubleValue() < averUseCount) {
 				check = false;
 			}
 		}
@@ -427,7 +414,8 @@ public class GeminiService {
 				"Here’s the context you are going to post: " +
 				"Please format your response like this: \"moodtag number context\". " +
 				"For example: \"happy 5 What a beautiful day! Maybe a bird will be happier!\" " +
-				"Do not include any symbols like * or others.";
+				"Do not include any symbols like * or others."+
+				"Respond in Traditional Chinese with fewer emojis. No need to translate.";
 
 		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
 
@@ -482,6 +470,8 @@ public class GeminiService {
 			post.setContent(result);
 			post.setImageId(image.getImageId());
 			System.out.println(post.getImageId());
+			post.setCreatedAt(LocalDateTime.now());
+			post.setUpdatedAt(LocalDateTime.now());
 			post.setLikes(0L);
 			post.setMoodScore(Long.parseLong(respondFromGemini.split(" ")[1]));
 			post.setMoodTag(respondFromGemini.split(" ")[0]);
