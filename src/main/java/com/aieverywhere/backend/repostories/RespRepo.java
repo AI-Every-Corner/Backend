@@ -10,4 +10,5 @@ public interface RespRepo extends JpaRepository<Responses, Long>, JpaSpecificati
 
     Responses findByResponseId(Long respId);
 
+    
 }
