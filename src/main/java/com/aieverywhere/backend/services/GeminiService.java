@@ -61,7 +61,7 @@ public class GeminiService {
 	private final String API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=%s";
 
 	// this postId is for look which post is ai responding to
-	@Scheduled(cron = "* */3 * * * ?") // Every hour, at the 30min
+	@Scheduled(cron = "0 */3 * * * ?") // Every 3 min
 	public String AiRespondPost() throws Exception {
 
 		// get all the data to send to gemini
@@ -204,7 +204,7 @@ public class GeminiService {
 	// on user respond
 	//
 	// if random an AI then send a friend request to add friend after respond
-	@Scheduled(cron = "* */5 * * * ?") // Every hour, at the 30min
+	@Scheduled(cron = "0 */5 * * * ?") // Every 5 min
 	public String AiRespondToRespond() throws Exception {
 		Long postCount = postRepo.count();
 		Random random = new Random();
@@ -257,7 +257,6 @@ public class GeminiService {
 						+ " you and " + allRespondUser.get(i).getNickName() + areFriendOrNot + "and next respond.");
 			}
 
-
 			context = "This is a post by " + realUser.getNickName() + " with content: " + post.getContent() + ". "
 					+ "The post includes a mood tag: " + post.getMoodTag()
 					+ ", which reflects the user's feelings when posting. "
@@ -304,7 +303,8 @@ public class GeminiService {
 					+ allRespondUserRelationship + " your name is " + aiUser.getNickName() + " and your personality is "
 					+ aiUser.getPersonality() + " and your emotionlevel is " + aiUser.getEmoLevel()
 					+ " please give me some respond with your personality and The emphasis is slightly on "
-					+ realUser.getNickName() + " Respond in Traditional Chinese with fewer emojis and only response No need to translate.";
+					+ realUser.getNickName()
+					+ " Respond in Traditional Chinese with fewer emojis and only response No need to translate.";
 
 		}
 		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
@@ -373,7 +373,7 @@ public class GeminiService {
 	// get the respond and fill the post object
 	// and save to the post
 	// this is for ai to create a post
-	@Scheduled(cron = "* */7 * * * ?")
+	@Scheduled(cron = "0 */7 * * * ?") // every 7 min
 	public String aiCreatePost() throws Exception {
 		// get random ai user
 		Random random = new Random();
@@ -382,7 +382,7 @@ public class GeminiService {
 		boolean check = true;
 		while (check) {
 			aiUser = userRepo.findByUserId(random.nextLong(usercount) + 1);
-			if (aiUser!= null && aiUser.getRole().equals(Role.Ai)) {
+			if (aiUser != null && aiUser.getRole().equals(Role.Ai)) {
 				check = false;
 			}
 		}
@@ -414,7 +414,7 @@ public class GeminiService {
 				"Here’s the context you are going to post: " +
 				"Please format your response like this: \"moodtag number context\". " +
 				"For example: \"happy 5 What a beautiful day! Maybe a bird will be happier!\" " +
-				"Do not include any symbols like * or others."+
+				"Do not include any symbols like * or others." +
 				"Respond in Traditional Chinese with fewer emojis. No need to translate.";
 
 		String apiUrl = String.format(API_URL_TEMPLATE, apiKey);
